@@ -5,20 +5,24 @@ import type { OntologyNode, OntologyEdge, NodeType } from '@/lib/types'
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY!
 const CLAUDE_MODEL = 'claude-sonnet-4-6'
 
-const SYSTEM_PROMPT = `You are an ontology extraction expert. Analyze the provided document and extract a rich, meaningful ontology graph that captures the key concepts, relationships, and structure of the domain.
+const SYSTEM_PROMPT = `You are an ontology engineering expert. You will receive one or more example documents of the same type (e.g. several job descriptions, medical records, contracts, research papers, etc.).
+
+Your task is NOT to describe the content of these specific documents — your task is to extract the **generative ontology**: the set of entities, dimensions, properties, and relationships that define *this kind of document* as a class, so the ontology can be used as a structured knowledge framework to generate new similar documents from a fresh prompt.
+
+Think of it as reverse-engineering the schema behind the document type.
 
 Return ONLY a valid JSON object (no markdown, no explanation) with this exact shape:
 {
   "name": "Descriptive Ontology Name",
-  "description": "1-2 sentence summary of what this ontology models",
+  "description": "1-2 sentence summary of the document type this ontology models and what it is used to generate",
   "domain": "single lowercase word (e.g. healthcare, hiring, finance, education, legal, retail)",
   "nodes": [
     {
       "id": "unique_snake_case_id",
       "type": "class|property|value|dimension|relation|constraint",
       "label": "Human Readable Label",
-      "description": "What this concept means in context",
-      "semantics": "deeper meaning or usage notes",
+      "description": "What this concept means in the context of this document type",
+      "semantics": "how this element varies across examples or drives generation",
       "examples": ["example1", "example2"]
     }
   ],
@@ -34,16 +38,15 @@ Return ONLY a valid JSON object (no markdown, no explanation) with this exact sh
 }
 
 Node type guidelines:
-- class: main entities or concepts (people roles, objects, processes)
-- property: attributes, characteristics, fields of a class
-- value: specific enumerated values or instances of a property
-- dimension: axes of classification or variation
-- relation: named relationships between entities
-- constraint: rules, requirements, or restrictions
+- class: main entities or document sections (e.g. Role, Candidate, Employer, Section)
+- property: attributes that characterize a class and vary per document instance
+- value: specific enumerated values for a property (e.g. seniority levels, contract types)
+- dimension: key axes of variation that differentiate document instances
+- relation: meaningful named relationships between entities
+- constraint: rules, requirements, or structural invariants of this document type
 
-Aim for 20-40 nodes and enough edges to make the graph meaningfully connected. Cover the full breadth of the document's domain.`
+Aim for 25–45 nodes covering the full breadth of what defines this document type. Make the graph well-connected so it can meaningfully guide generation.`
 
-// Layout: arrange nodes by type in rows, spread horizontally
 function layoutNodes(nodes: Omit<OntologyNode, 'position'>[]): OntologyNode[] {
   const ROW_Y: Record<NodeType, number> = {
     class: 100,
@@ -66,55 +69,57 @@ function layoutNodes(nodes: Omit<OntologyNode, 'position'>[]): OntologyNode[] {
   })
 }
 
-function buildClaudeRequest(file: File, bytes: ArrayBuffer) {
+function fileToContentBlock(name: string, mime: string, bytes: ArrayBuffer, index: number): object[] {
   const base64 = Buffer.from(bytes).toString('base64')
-  const mime = file.type || 'application/octet-stream'
   const isImage = mime.startsWith('image/')
   const isPdf = mime === 'application/pdf'
   const isText = mime.startsWith('text/') || ['application/json', 'application/yaml', 'application/xml'].some(t => mime.includes(t))
+  const label = `<example_${index + 1} filename="${name}">`
+  const endLabel = `</example_${index + 1}>`
 
-  const userText = `Extract a comprehensive ontology from this document: "${file.name}"`
-
-  let content: object[]
   if (isPdf) {
-    content = [
+    return [
+      { type: 'text', text: label },
       { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-      { type: 'text', text: userText },
+      { type: 'text', text: endLabel },
     ]
   } else if (isImage) {
-    content = [
+    return [
+      { type: 'text', text: label },
       { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
-      { type: 'text', text: userText },
+      { type: 'text', text: endLabel },
     ]
-  } else if (isText) {
-    const text = Buffer.from(bytes).toString('utf-8').slice(0, 100_000)
-    content = [{ type: 'text', text: `${userText}\n\n<document>\n${text}\n</document>` }]
   } else {
-    // Try UTF-8, fall back to binary description
     let text: string
-    try {
-      text = Buffer.from(bytes).toString('utf-8').slice(0, 100_000)
-    } catch {
-      text = `[Binary file: ${file.name}, ${bytes.byteLength} bytes]`
+    if (isText) {
+      text = Buffer.from(bytes).toString('utf-8').slice(0, 80_000)
+    } else {
+      try { text = Buffer.from(bytes).toString('utf-8').slice(0, 80_000) }
+      catch { text = `[Binary file: ${name}, ${bytes.byteLength} bytes]` }
     }
-    content = [{ type: 'text', text: `${userText}\n\n<document>\n${text}\n</document>` }]
-  }
-
-  return {
-    model: CLAUDE_MODEL,
-    max_tokens: 8192,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content }],
+    return [{ type: 'text', text: `${label}\n${text}\n${endLabel}` }]
   }
 }
 
 export async function POST(req: Request) {
   const formData = await req.formData()
-  const file = formData.get('file') as File | null
-  if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+  const files = formData.getAll('file') as File[]
+  if (files.length === 0) return NextResponse.json({ error: 'No files provided' }, { status: 400 })
 
-  const bytes = await file.arrayBuffer()
-  const claudeReq = buildClaudeRequest(file, bytes)
+  // Build content blocks for all files
+  const contentBlocks: object[] = []
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    const bytes = await file.arrayBuffer()
+    const mime = file.type || 'application/octet-stream'
+    contentBlocks.push(...fileToContentBlock(file.name, mime, bytes, i))
+  }
+
+  const instruction = files.length === 1
+    ? `Analyze this example document and extract the generative ontology for this document type.`
+    : `Analyze these ${files.length} example documents of the same type. Identify the common entities, dimensions, properties, and relationships that define this document class. Extract the generative ontology.`
+
+  contentBlocks.push({ type: 'text', text: instruction })
 
   let anthropicResp: Response
   try {
@@ -125,7 +130,12 @@ export async function POST(req: Request) {
         'anthropic-version': '2023-06-01',
         'content-type': 'application/json',
       },
-      body: JSON.stringify(claudeReq),
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 8192,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: contentBlocks }],
+      }),
     })
   } catch (err) {
     return NextResponse.json({ error: `Anthropic API unreachable: ${err}` }, { status: 502 })
@@ -139,7 +149,6 @@ export async function POST(req: Request) {
   const claudeData = await anthropicResp.json()
   const rawText: string = claudeData.content?.[0]?.text ?? ''
 
-  // Extract JSON from response (may be wrapped in ```json blocks)
   let parsed: { name: string; description: string; domain: string; nodes: object[]; edges: object[] }
   try {
     const jsonMatch = rawText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/) ?? rawText.match(/(\{[\s\S]*\})/)
@@ -159,9 +168,10 @@ export async function POST(req: Request) {
     ...(e as OntologyEdge),
   }))
 
+  const defaultName = files.length === 1 ? files[0].name : `${files.length} examples`
   const ontology = {
     id,
-    name: parsed.name ?? file.name,
+    name: parsed.name ?? defaultName,
     description: parsed.description ?? '',
     domain: parsed.domain ?? 'general',
     createdAt: now,
