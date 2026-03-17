@@ -18,7 +18,8 @@ function serializeOntology(o: Ontology): string {
   ]
   for (const n of o.nodes) {
     const displayLabel = n.label.replace(/_/g, ' ')
-    let line = `  [${n.type}] ${displayLabel}`
+    const isContext = n.metadata?.generate === 'context'
+    let line = `  [${n.type}${isContext ? ':context' : ''}] ${displayLabel}`
     if (n.description) line += `: ${n.description}`
     if (n.semantics) line += ` — ${n.semantics}`
     if (n.examples?.length) line += ` (e.g. ${n.examples.slice(0, 2).join(', ')})`
@@ -72,11 +73,12 @@ ${ontologyContext}
 </ontology>
 
 CRITICAL INSTRUCTIONS:
-1. Your response MUST address every node in the ontology. For each [dimension], [property], and [class] node, incorporate its concept naturally into the text using the node's label as the term (e.g. a node labeled "role family" must result in content about role family, a node labeled "tech stack era" must appear as that phrase or close equivalent).
-2. For [value] nodes, use them as concrete choices where relevant (e.g. "senior", "remote", "equity structure").
-3. Organize your response to mirror the ontology's structure — group content by the dimension clusters.
-4. Write for a human reader: natural prose, not a list of node names.
-5. Coverage goal: reference at least 70% of all nodes by their label in the output.
+1. Nodes tagged [dimension:context], [property:context], or [class:context] are BACKGROUND KNOWLEDGE ONLY — use them to inform your writing style, tone, and framing, but do NOT create dedicated sections or headings for them. Weave them invisibly into the prose where relevant.
+2. All other nodes (without :context) MUST be explicitly addressed with their own content — use the node label as the term in the output.
+3. For [value] nodes, use them as concrete choices where relevant (e.g. "senior", "remote").
+4. Organize your response to mirror the non-context dimension clusters only.
+5. Write for a human reader: natural prose, not a list of node names.
+6. Coverage goal: reference at least 70% of non-context nodes explicitly in the output.
 
 After your main response, append a dimension map in this exact format — a JSON block wrapped in <dimension_map> tags:
 
