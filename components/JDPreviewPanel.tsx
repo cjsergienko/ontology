@@ -485,7 +485,7 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
                         <div className="flex flex-wrap gap-1.5">
                           {result.node_coverage.nodes.filter(n => !n.excluded && !n.mentioned).map(n => (
                             <span key={n.label} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs"
-                              style={{ background: 'var(--surface)', color: 'var(--text-dim)', border: '1px solid var(--border)' }}>
+                              style={{ background: 'var(--surface2)', color: '#64748b', border: '1px solid #334155' }}>
                               {n.label}
                             </span>
                           ))}
@@ -499,7 +499,7 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
                         <div className="flex flex-wrap gap-1.5">
                           {result.node_coverage.nodes.filter(n => n.excluded).map(n => (
                             <span key={n.label} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs"
-                              style={{ background: 'transparent', color: '#1e2d45', border: '1px solid #1e2d45', opacity: 0.6 }}>
+                              style={{ background: 'transparent', color: '#334155', border: '1px solid #243550' }}>
                               {n.label}
                             </span>
                           ))}
