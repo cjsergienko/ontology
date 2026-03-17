@@ -87,12 +87,52 @@ function nodeColor(type: string): string {
   return NODE_TYPE_COLORS[type.toLowerCase()] ?? NODE_TYPE_COLORS.default
 }
 
+interface HistoryEntry {
+  id: string
+  timestamp: number
+  prompt: string
+  result: PreviewResult
+}
+
+const HISTORY_KEY = (id: string) => `preview_history_${id}`
+const MAX_HISTORY = 20
+
+function loadHistory(ontologyId: string): HistoryEntry[] {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY(ontologyId)) ?? '[]')
+  } catch { return [] }
+}
+
+function saveHistory(ontologyId: string, entries: HistoryEntry[]) {
+  localStorage.setItem(HISTORY_KEY(ontologyId), JSON.stringify(entries.slice(0, MAX_HISTORY)))
+}
+
+function fmtDate(ts: number): string {
+  const d = new Date(ts)
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
+    ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+}
+
 export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
   const [prompt, setPrompt] = useState('Generate a job description for a senior software engineer at a B2B SaaS startup. Remote, full-time.')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<PreviewResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'output' | 'coverage' | 'dimensions' | 'usage'>('output')
+  const [history, setHistory] = useState<HistoryEntry[]>([])
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null)
+
+  // Load history from localStorage on mount, restore last result
+  useEffect(() => {
+    const h = loadHistory(ontologyId)
+    setHistory(h)
+    if (h.length > 0) {
+      setResult(h[0].result)
+      setPrompt(h[0].prompt)
+      setSelectedHistoryId(h[0].id)
+      setActiveTab('dimensions')
+    }
+  }, [ontologyId])
 
   const generate = async () => {
     setLoading(true)
@@ -108,14 +148,26 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
         const err = await resp.json()
         throw new Error(err.error || 'Generation failed')
       }
-      const data = await resp.json()
+      const data: PreviewResult = await resp.json()
+      const entry: HistoryEntry = { id: crypto.randomUUID(), timestamp: Date.now(), prompt, result: data }
+      const updated = [entry, ...history]
+      setHistory(updated)
+      saveHistory(ontologyId, updated)
       setResult(data)
+      setSelectedHistoryId(entry.id)
       setActiveTab('dimensions')
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
+  }
+
+  const selectHistory = (entry: HistoryEntry) => {
+    setResult(entry.result)
+    setPrompt(entry.prompt)
+    setSelectedHistoryId(entry.id)
+    setActiveTab('dimensions')
   }
 
   const u = result?.usage
@@ -253,6 +305,33 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
                 </div>
                 <div className="text-xs" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
                   {result.node_coverage.mentioned}/{result.node_coverage.total} nodes mentioned
+                </div>
+              </div>
+            )}
+
+            {/* History */}
+            {history.length > 0 && (
+              <div className="mt-5">
+                <p className="text-xs font-medium mb-2" style={{ color: 'var(--text-dim)' }}>HISTORY</p>
+                <div className="flex flex-col gap-1">
+                  {history.map(entry => (
+                    <button
+                      key={entry.id}
+                      onClick={() => selectHistory(entry)}
+                      className="w-full text-left px-2.5 py-2 rounded transition-all"
+                      style={{
+                        background: entry.id === selectedHistoryId ? 'var(--accent-dim)' : 'var(--surface)',
+                        border: `1px solid ${entry.id === selectedHistoryId ? 'var(--accent)' : 'var(--border)'}`,
+                      }}
+                    >
+                      <p className="text-xs truncate" style={{ color: entry.id === selectedHistoryId ? 'var(--accent)' : 'var(--text-muted)' }}>
+                        {entry.prompt}
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
+                        {fmtDate(entry.timestamp)} · {fmtCost(entry.result.usage.cost_usd)}
+                      </p>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
