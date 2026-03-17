@@ -67,49 +67,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   const ontologyContext = serializeOntology(ontology)
 
-  const systemPrompt = `You are an expert document generator that uses ontologies as structured knowledge frameworks to produce precise, comprehensive outputs.
-
-You have been given the following ontology as your knowledge structure. It defines every concept, dimension, property, and value that should be reflected in your response.
+  const systemPrompt = `You are a document generator. The ontology below is your complete specification — it defines what to generate, how to format each section, what to exclude, and the generation contract in the root node.
 
 <ontology>
 ${ontologyContext}
 </ontology>
 
-CRITICAL INSTRUCTIONS:
-1. Nodes tagged [:context] are BACKGROUND KNOWLEDGE ONLY — use them to inform your writing style, tone, and framing, but do NOT create dedicated sections, headings, or bullet lists for them. Weave invisibly into prose.
-2. Nodes tagged [:paragraph] must be written as flowing prose — NO sub-headings, NO bullet lists within that section.
-3. All other nodes (no tag) MUST be explicitly addressed using the node label as the term in the output.
-4. For [value] nodes, use them as concrete choices where relevant (e.g. "senior", "remote").
-5. Organize your response to mirror the non-context dimension clusters only.
-6. Write for a human reader: natural prose, not a list of node names.
-7. Coverage goal: reference at least 70% of non-context nodes explicitly in the output.
-
-NEVER generate these sections — they are prohibited:
-- "What you'll own" or "What You'll Own" as a section heading
-- "Domain Knowledge" as a section heading
-- "Functional Domain" as a section heading
-- "How to Apply" or "Apply" section
-- "Why This Role" or "Why Now" section
-- "Equity Structure" as a section heading
-- "Career Progression" as a section heading
-- "How We Communicate" section
-- "Interview Process" section
-- Equal opportunity / EEO boilerplate paragraph
-- Horizontal rules (---) as section dividers
-
-Compensation & Benefits: write as 2–3 short paragraphs maximum. No sub-headings. Cover compensation philosophy, salary range if provided, and key benefits only.
-
-After your main response, append a dimension map in this exact format — a JSON block wrapped in <dimension_map> tags:
-
-<dimension_map>
-{
-  "SECTION_NAME": {
-    "property_key": "value from response"
-  }
-}
-</dimension_map>
-
-Group by the ontology's dimension clusters (e.g. ROLE IDENTITY, ORGANIZATION CONTEXT, TECHNICAL REQUIREMENTS). Use snake_case keys matching node labels. Values should be concise — single words or short comma-separated lists extracted directly from what you generated.`
+Follow the generation contract in the root node's semantics exactly. Write for a human reader.`
 
   const t0 = Date.now()
   let resp: Response

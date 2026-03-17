@@ -10,12 +10,12 @@
       "id": "jd_root",
       "type": "class",
       "label": "JobDescription",
-      "description": "Ontology-driven job description. Resolved across 8 dimensions categories and 42 role families.",
+      "description": "Job Description document",
       "position": {
         "x": 1180,
         "y": 40
       },
-      "semantics": "The core object produced by the JD generation pipeline. Fully parameterized by 43 taxonomy dimensions.",
+      "semantics": "GENERATION CONTRACT \u2014 follow this exactly when generating a document from this ontology.\n\nSECTION ORDER: Generate sections in this order, using only non-:context dimension clusters: About the Company, The Role, Who We're Looking For, What You'll Be Doing, Technical Requirements, Compensation & Benefits.\n\nTAG RULES:\n- [:context] = background knowledge only \u2014 inform tone/style but do NOT create a section or heading for it\n- [:list] = generate as a 1-sentence intro followed by a bullet list of specific items. No prose paragraphs.\n- [:paragraph] = flowing prose only, no sub-headings, no bullet points\n- [:short] = 2\u20133 short paragraphs maximum, no sub-headings\n- [:salary-line] = bold salary range on its own line, then 2\u20133 short benefit bullets. No sub-headings.\n\nCOVERAGE GOAL: Reference at least 70% of non-:context nodes by their label in the output.\n\nNEVER GENERATE:\n- \"What you'll own\" as a section heading\n- \"Domain Knowledge\" as a section heading\n- \"Functional Domain\" as a section heading\n- \"How to Apply\" or \"Apply\" section\n- \"Why This Role\" or \"Why Now\" section\n- \"Equity Structure\" as a section heading\n- \"Career Progression\" as a section heading\n- \"How We Communicate\" section\n- \"Interview Process\" section\n- Equal opportunity / EEO boilerplate\n- Horizontal rules (---) as dividers\n\nDIMENSION MAP: After the main response, append a <dimension_map> JSON block mapping ontology clusters to values used in your response:\n<dimension_map>\n{\"CLUSTER_NAME\": {\"property_key\": \"value from response\"}}\n</dimension_map>",
       "examples": [
         "Senior ML Engineer at Series B startup",
         "Entry-level Marketing Analyst at enterprise"
