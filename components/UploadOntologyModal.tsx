@@ -68,8 +68,15 @@ export function UploadOntologyModal({ onClose }: Props) {
       for (const f of files) fd.append('file', f)
       const resp = await fetch('/api/ontologies/upload', { method: 'POST', body: fd })
       if (!resp.ok) {
-        const err = await resp.json()
-        throw new Error(err.error ?? 'Upload failed')
+        if (resp.status === 524 || resp.status === 504) {
+          throw new Error('Request timed out — try fewer or smaller files.')
+        }
+        const ct = resp.headers.get('content-type') ?? ''
+        if (ct.includes('application/json')) {
+          const err = await resp.json()
+          throw new Error(err.error ?? 'Upload failed')
+        }
+        throw new Error(`Server error ${resp.status}`)
       }
       const ontology = await resp.json()
       router.push(`/ontology/${ontology.id}`)
