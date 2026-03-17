@@ -67,9 +67,10 @@
         "x": 760,
         "y": 260
       },
-      "semantics": "Who should apply?",
+      "semantics": "Who should apply? Generate as 2\u20133 short paragraphs, no sub-headings, no bullet points.",
       "metadata": {
-        "category_key": "candidate_profile"
+        "category_key": "candidate_profile",
+        "length": "short"
       }
     },
     {
@@ -96,10 +97,10 @@
         "x": 1420,
         "y": 260
       },
-      "semantics": "What hard skills?",
+      "semantics": "What hard skills? Write a 1-sentence intro, then a bullet list of must-have technologies/skills. Keep the section concise \u2014 highlight the most important things only. No prose paragraphs after the list.",
       "metadata": {
         "category_key": "tech_reqs",
-        "format": "paragraph"
+        "format": "list"
       }
     },
     {
@@ -111,9 +112,10 @@
         "x": 1750,
         "y": 260
       },
-      "semantics": "What is the value proposition?",
+      "semantics": "Compensation value proposition. Format: salary range on its own bolded line, then 2\u20133 short bullet points for key benefits. No sub-headings. Very concise.",
       "metadata": {
-        "category_key": "comp_benefits"
+        "category_key": "comp_benefits",
+        "format": "salary-line"
       }
     },
     {
@@ -179,7 +181,7 @@
         "x": 400,
         "y": 520
       },
-      "semantics": "Day-to-day operating mode of the role",
+      "semantics": "Day-to-day operating mode \u2014 2 sentences max",
       "metadata": {}
     },
     {
@@ -192,7 +194,9 @@
         "y": 680
       },
       "semantics": "Business function being served",
-      "metadata": {}
+      "metadata": {
+        "generate": "context"
+      }
     },
     {
       "id": "dim_specialization",
@@ -203,7 +207,7 @@
         "x": 220,
         "y": 680
       },
-      "semantics": "Specific area of specialization (16 options)",
+      "semantics": "Specific focus area \u2014 one sentence inline",
       "metadata": {}
     },
     {
@@ -275,7 +279,7 @@
         "x": 920,
         "y": 520
       },
-      "semantics": "Years of relevant experience range",
+      "semantics": "Years of relevant experience \u2014 state in one sentence inline",
       "metadata": {}
     },
     {
@@ -287,7 +291,7 @@
         "x": 1080,
         "y": 520
       },
-      "semantics": "Formal education expectations",
+      "semantics": "Education expectations \u2014 one sentence inline",
       "metadata": {}
     },
     {
@@ -299,7 +303,7 @@
         "x": 1240,
         "y": 520
       },
-      "semantics": "Candidate career movement pattern",
+      "semantics": "Career movement pattern \u2014 one sentence inline",
       "metadata": {}
     },
     {
@@ -311,7 +315,7 @@
         "x": 920,
         "y": 680
       },
-      "semantics": "Industry certifications expected",
+      "semantics": "Certifications \u2014 one clause inline, no dedicated line",
       "metadata": {}
     },
     {
@@ -323,7 +327,7 @@
         "x": 1080,
         "y": 680
       },
-      "semantics": "Talent pool targeting",
+      "semantics": "Talent pool \u2014 one sentence inline",
       "metadata": {}
     },
     {
@@ -419,9 +423,9 @@
         "x": 1720,
         "y": 520
       },
-      "semantics": "40 skill domain tags",
+      "semantics": "Specific technologies and skill areas \u2014 output as a concise bullet list: language, database, cloud, API, testing. No paragraph descriptions.",
       "metadata": {
-        "format": "paragraph"
+        "format": "list"
       }
     },
     {
@@ -489,7 +493,7 @@
         "x": 2030,
         "y": 520
       },
-      "semantics": "Pay philosophy & structure (7 options)",
+      "semantics": "Pay philosophy \u2014 one sentence",
       "metadata": {}
     },
     {
@@ -515,7 +519,7 @@
         "x": 2030,
         "y": 680
       },
-      "semantics": "Benefits package focus areas (12 options)",
+      "semantics": "Top 3\u20134 benefits only, as brief bullet points",
       "metadata": {}
     },
     {

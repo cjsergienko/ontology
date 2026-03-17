@@ -19,8 +19,10 @@ function serializeOntology(o: Ontology): string {
   for (const n of o.nodes) {
     const displayLabel = n.label.replace(/_/g, ' ')
     const isContext = n.metadata?.generate === 'context'
-    const isPara = n.metadata?.format === 'paragraph'
-    let line = `  [${n.type}${isContext ? ':context' : ''}${isPara ? ':paragraph' : ''}] ${displayLabel}`
+    const fmt = n.metadata?.format
+    const len = n.metadata?.length
+    let tag = n.type + (isContext ? ':context' : '') + (fmt ? `:${fmt}` : '') + (len ? `:${len}` : '')
+    let line = `  [${tag}] ${displayLabel}`
     if (n.description) line += `: ${n.description}`
     if (n.semantics) line += ` — ${n.semantics}`
     if (n.examples?.length) line += ` (e.g. ${n.examples.slice(0, 2).join(', ')})`
@@ -85,12 +87,15 @@ CRITICAL INSTRUCTIONS:
 NEVER generate these sections — they are prohibited:
 - "What you'll own" or "What You'll Own" as a section heading
 - "Domain Knowledge" as a section heading
+- "Functional Domain" as a section heading
 - "How to Apply" or "Apply" section
 - "Why This Role" or "Why Now" section
 - "Equity Structure" as a section heading
 - "Career Progression" as a section heading
 - "How We Communicate" section
 - "Interview Process" section
+- Equal opportunity / EEO boilerplate paragraph
+- Horizontal rules (---) as section dividers
 
 Compensation & Benefits: write as 2–3 short paragraphs maximum. No sub-headings. Cover compensation philosophy, salary range if provided, and key benefits only.
 
