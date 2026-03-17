@@ -19,7 +19,8 @@ function serializeOntology(o: Ontology): string {
   for (const n of o.nodes) {
     const displayLabel = n.label.replace(/_/g, ' ')
     const isContext = n.metadata?.generate === 'context'
-    let line = `  [${n.type}${isContext ? ':context' : ''}] ${displayLabel}`
+    const isPara = n.metadata?.format === 'paragraph'
+    let line = `  [${n.type}${isContext ? ':context' : ''}${isPara ? ':paragraph' : ''}] ${displayLabel}`
     if (n.description) line += `: ${n.description}`
     if (n.semantics) line += ` — ${n.semantics}`
     if (n.examples?.length) line += ` (e.g. ${n.examples.slice(0, 2).join(', ')})`
@@ -73,12 +74,25 @@ ${ontologyContext}
 </ontology>
 
 CRITICAL INSTRUCTIONS:
-1. Nodes tagged [dimension:context], [property:context], or [class:context] are BACKGROUND KNOWLEDGE ONLY — use them to inform your writing style, tone, and framing, but do NOT create dedicated sections or headings for them. Weave them invisibly into the prose where relevant.
-2. All other nodes (without :context) MUST be explicitly addressed with their own content — use the node label as the term in the output.
-3. For [value] nodes, use them as concrete choices where relevant (e.g. "senior", "remote").
-4. Organize your response to mirror the non-context dimension clusters only.
-5. Write for a human reader: natural prose, not a list of node names.
-6. Coverage goal: reference at least 70% of non-context nodes explicitly in the output.
+1. Nodes tagged [:context] are BACKGROUND KNOWLEDGE ONLY — use them to inform your writing style, tone, and framing, but do NOT create dedicated sections, headings, or bullet lists for them. Weave invisibly into prose.
+2. Nodes tagged [:paragraph] must be written as flowing prose — NO sub-headings, NO bullet lists within that section.
+3. All other nodes (no tag) MUST be explicitly addressed using the node label as the term in the output.
+4. For [value] nodes, use them as concrete choices where relevant (e.g. "senior", "remote").
+5. Organize your response to mirror the non-context dimension clusters only.
+6. Write for a human reader: natural prose, not a list of node names.
+7. Coverage goal: reference at least 70% of non-context nodes explicitly in the output.
+
+NEVER generate these sections — they are prohibited:
+- "What you'll own" or "What You'll Own" as a section heading
+- "Domain Knowledge" as a section heading
+- "How to Apply" or "Apply" section
+- "Why This Role" or "Why Now" section
+- "Equity Structure" as a section heading
+- "Career Progression" as a section heading
+- "How We Communicate" section
+- "Interview Process" section
+
+Compensation & Benefits: write as 2–3 short paragraphs maximum. No sub-headings. Cover compensation philosophy, salary range if provided, and key benefits only.
 
 After your main response, append a dimension map in this exact format — a JSON block wrapped in <dimension_map> tags:
 

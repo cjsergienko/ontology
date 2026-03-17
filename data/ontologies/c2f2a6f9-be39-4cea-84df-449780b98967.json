@@ -98,7 +98,8 @@
       },
       "semantics": "What hard skills?",
       "metadata": {
-        "category_key": "tech_reqs"
+        "category_key": "tech_reqs",
+        "format": "paragraph"
       }
     },
     {
@@ -419,7 +420,9 @@
         "y": 520
       },
       "semantics": "40 skill domain tags",
-      "metadata": {}
+      "metadata": {
+        "format": "paragraph"
+      }
     },
     {
       "id": "dim_tech_stack_era",
