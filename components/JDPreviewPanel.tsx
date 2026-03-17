@@ -241,6 +241,7 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
                 border: '1px solid var(--border)',
                 color: 'var(--text)',
                 fontFamily: 'inherit',
+                minHeight: 120,
               }}
               onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
               onBlur={e => (e.target.style.borderColor = 'var(--border)')}
