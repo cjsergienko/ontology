@@ -662,6 +662,45 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
                   <p className="text-xs mt-3" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
                     Pricing: Sonnet $3/$15 per MTok in/out · Cache reads $0.30/MTok · Cache writes $3.75/MTok
                   </p>
+
+                  {/* Per-section dimension breakdown */}
+                  {Object.keys(result.dimension_map).length > 0 && (
+                    <div className="mt-6">
+                      <div className="text-xs font-medium mb-2" style={{ color: 'var(--text-dim)' }}>SECTIONS GENERATED</div>
+                      <div className="rounded overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                              {['Section', 'Dimensions resolved', 'Values'].map(h => (
+                                <th key={h} className="text-left px-3 py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.entries(result.dimension_map).map(([section, props], i, arr) => {
+                              const entries = Object.entries(props)
+                              return (
+                                <tr key={section} style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                                  <td className="px-3 py-2 font-semibold align-top" style={{ color: 'var(--accent)', whiteSpace: 'nowrap' }}>{section}</td>
+                                  <td className="px-3 py-2 align-top font-mono" style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{entries.length}</td>
+                                  <td className="px-3 py-2 align-top">
+                                    <div className="flex flex-col gap-0.5">
+                                      {entries.map(([key, val]) => (
+                                        <div key={key} className="flex items-baseline gap-2">
+                                          <span className="font-mono shrink-0" style={{ color: 'var(--text-muted)', minWidth: 140 }}>{key}</span>
+                                          <span style={{ color: 'var(--text-dim)' }}>{val}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
