@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { XIcon, PlayIcon, AlertCircleIcon, ClockIcon } from 'lucide-react'
 
 interface NodeCoverageItem {
@@ -118,7 +119,18 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<PreviewResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'output' | 'coverage' | 'dimensions' | 'usage'>('output')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+
+  type Tab = 'output' | 'coverage' | 'dimensions' | 'usage'
+  const activeTab = (searchParams.get('tab') as Tab | null) ?? 'output'
+
+  const setActiveTab = useCallback((tab: Tab) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', tab)
+    router.replace(`${pathname}?${params.toString()}`)
+  }, [searchParams, pathname, router])
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null)
 
