@@ -62,6 +62,7 @@ function layoutNodes(nodes: Omit<OntologyNode, 'position'>[]): OntologyNode[] {
 }
 
 export async function POST(req: Request) {
+  try {
   const formData = await req.formData()
   const file = formData.get('file') as File | null
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
@@ -156,4 +157,8 @@ export async function POST(req: Request) {
 
   saveOntology(ontology)
   return NextResponse.json(ontology)
+  } catch (err) {
+    console.error('[import] unhandled error:', err)
+    return NextResponse.json({ error: `Internal error: ${err instanceof Error ? err.message : String(err)}` }, { status: 500 })
+  }
 }
