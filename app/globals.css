@@ -22,6 +22,8 @@
 
 * { box-sizing: border-box; }
 
+button, a, [role="button"], [role="tab"], [role="link"] { cursor: pointer; }
+
 html, body { height: 100%; }
 
 body {
