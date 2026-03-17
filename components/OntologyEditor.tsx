@@ -127,7 +127,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
     router.replace(`${pathname}${qs ? `?${qs}` : ''}`)
   }, [searchParams, pathname, router])
 
-  const activeLayout = (searchParams.get('layout') as LayoutKind | null) ?? 'force'
+  const activeLayout = (searchParams.get('layout') as LayoutKind | null) ?? 'spring'
 
   const autoLayout = useCallback((kind: LayoutKind) => {
     setLayoutMenuOpen(false)
