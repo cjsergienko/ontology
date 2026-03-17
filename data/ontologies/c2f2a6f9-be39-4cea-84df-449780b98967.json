@@ -69,7 +69,7 @@
         "x": 760,
         "y": 260
       },
-      "semantics": "Who should apply? Generate as exactly 1 short paragraph, no sub-headings, no bullet points. Weave all candidate attributes inline.",
+      "semantics": "Who should apply? Exactly 1 short paragraph, 2-3 sentences max. No sub-headings, no bullets. Most important attributes only.",
       "metadata": {
         "category_key": "candidate_profile",
         "length": "single-paragraph",
