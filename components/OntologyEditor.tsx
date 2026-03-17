@@ -30,7 +30,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { JDPreviewPanel } from './JDPreviewPanel'
-import { applyDagreLayout } from '@/lib/layout'
+import { applyForceLayout } from '@/lib/layout'
 
 const nodeTypes: NodeTypes = {
   ontology: OntologyNodeComponent,
@@ -97,7 +97,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
 
   const autoLayout = useCallback(() => {
     setNodes(ns => {
-      const laid = applyDagreLayout(ns, edges)
+      const laid = applyForceLayout(ns, edges)
       setTimeout(() => fitView({ padding: 0.15, duration: 400 }), 50)
       return laid
     })
