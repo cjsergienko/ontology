@@ -94,17 +94,17 @@
     {
       "id": "cat_tech_reqs",
       "type": "dimension",
-      "label": "Technical Requirements",
+      "label": "Requirements",
       "description": "What hard skills?",
       "position": {
         "x": -983.5911730090944,
         "y": 289.89924689977624
       },
-      "semantics": "What hard skills? Write 1 sentence intro, then a plain list using \"- \" prefix (not numbers). Max 6 items. Each item: technology or skill name followed by a brief qualifier. Keep it short.",
+      "semantics": "What does this person need to succeed? Write 1 sentence intro, then a \"- \" dash list of must-have skills, qualifications, certifications, or experience. Max 6 items. Domain-appropriate language \u2014 not technology-centric unless the role demands it.",
       "metadata": {
         "category_key": "tech_reqs",
         "format": "list",
-        "aliases": "technical requirements,requirements,technical environment,tech stack,technical skills"
+        "aliases": "what you need,what we need,requirements,skills,qualifications,what you bring"
       }
     },
     {
