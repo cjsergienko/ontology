@@ -304,7 +304,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
             style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent)', color: 'var(--accent)' }}
           >
             <PlayIcon size={11} />
-            Preview
+            Try
           </button>
           <div className="relative">
             <button
