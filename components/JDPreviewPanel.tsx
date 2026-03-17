@@ -29,6 +29,7 @@ interface PreviewResult {
   duration_ms: number
   usage: Usage
   node_coverage: NodeCoverage
+  dimension_map: Record<string, Record<string, string>>
   model: string
 }
 
@@ -357,31 +358,41 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
                 </div>
               )}
 
-              {result && activeTab === 'dimensions' && (() => {
-                const NODE_TYPE_ORDER = ['class', 'dimension', 'property', 'value', 'relation', 'constraint']
-                const NODE_TYPE_LABELS: Record<string, string> = {
-                  class: 'Classes', dimension: 'Dimensions', property: 'Properties',
-                  value: 'Values', relation: 'Relations', constraint: 'Constraints',
-                }
-                const byType = new Map<string, NodeCoverageItem[]>()
-                for (const n of result.node_coverage.nodes) {
-                  if (!byType.has(n.type)) byType.set(n.type, [])
-                  byType.get(n.type)!.push(n)
-                }
-                const json: Record<string, Record<string, boolean>> = {}
-                for (const type of NODE_TYPE_ORDER) {
-                  const items = byType.get(type)
-                  if (items) json[NODE_TYPE_LABELS[type] ?? type] = Object.fromEntries(items.map(n => [n.label, n.mentioned]))
-                }
-                return (
-                  <pre
-                    className="text-xs leading-relaxed"
-                    style={{ color: 'var(--text-muted)', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}
-                  >
-                    {JSON.stringify(json, null, 2)}
-                  </pre>
-                )
-              })()}
+              {result && activeTab === 'dimensions' && (
+                <div>
+                  {Object.keys(result.dimension_map).length === 0 ? (
+                    <p className="text-xs" style={{ color: 'var(--text-dim)' }}>
+                      No dimension map returned. Try generating again.
+                    </p>
+                  ) : (
+                    <div className="space-y-5">
+                      {Object.entries(result.dimension_map).map(([section, props]) => (
+                        <div key={section}>
+                          <div
+                            className="text-xs font-semibold uppercase tracking-widest mb-2"
+                            style={{ color: 'var(--accent)', letterSpacing: '0.1em' }}
+                          >
+                            {section}
+                          </div>
+                          <div className="space-y-1">
+                            {Object.entries(props).map(([key, val]) => (
+                              <div key={key} className="flex items-baseline gap-3 text-xs">
+                                <span
+                                  className="shrink-0 font-mono"
+                                  style={{ color: 'var(--text-muted)', minWidth: 180 }}
+                                >
+                                  {key}
+                                </span>
+                                <span style={{ color: 'var(--text-dim)' }}>{val}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {result && activeTab === 'usage' && (
                 <div>
@@ -417,7 +428,7 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
                   </div>
 
                   {/* Breakdown table */}
-                  <div className="text-xs font-medium mb-2" style={{ color: 'var(--text-dim)' }}>CALL BREAKDOWN</div>
+                  <div className="text-xs font-medium mb-2" style={{ color: 'var(--text-dim)' }}>PER-STAGE BREAKDOWN</div>
                   <div className="rounded overflow-hidden" style={{ border: '1px solid var(--border)' }}>
                     <table className="w-full text-xs">
                       <thead>

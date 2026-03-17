@@ -70,7 +70,19 @@ Generate a comprehensive, well-structured response that:
 - Reflects the concepts and relationships defined in the ontology
 - Uses accurate terminology from the ontology where appropriate
 - Is organized in a way that maps to the ontology's structure
-- Is practical and readable for a human audience`
+- Is practical and readable for a human audience
+
+After your main response, append a dimension map in this exact format — a JSON block wrapped in <dimension_map> tags that maps the key ontology sections/clusters to the specific values used in your response:
+
+<dimension_map>
+{
+  "SECTION_NAME": {
+    "property_key": "value from response"
+  }
+}
+</dimension_map>
+
+Group properties by logical clusters from the ontology (e.g. ROLE IDENTITY, CULTURE FIT, TECHNICAL REQS). Use snake_case keys. Values should be concise — single words or short comma-separated lists extracted directly from what you generated.`
 
   const t0 = Date.now()
   let resp: Response
@@ -101,7 +113,15 @@ Generate a comprehensive, well-structured response that:
   }
 
   const data = await resp.json()
-  const output: string = data.content?.[0]?.text ?? ''
+  const raw: string = data.content?.[0]?.text ?? ''
+
+  // Split main output from dimension_map block
+  const dimMapMatch = raw.match(/<dimension_map>([\s\S]*?)<\/dimension_map>/)
+  const output = raw.replace(/<dimension_map>[\s\S]*?<\/dimension_map>/, '').trimEnd()
+  let dimension_map: Record<string, Record<string, string>> = {}
+  if (dimMapMatch) {
+    try { dimension_map = JSON.parse(dimMapMatch[1].trim()) } catch { /* ignore parse errors */ }
+  }
   const u = data.usage ?? {}
   const input_tokens: number = u.input_tokens ?? 0
   const output_tokens: number = u.output_tokens ?? 0
@@ -120,6 +140,7 @@ Generate a comprehensive, well-structured response that:
     duration_ms,
     usage: { input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, cost_usd: Math.round(cost_usd * 1e6) / 1e6 },
     node_coverage: measureNodeCoverage(output, ontology),
+    dimension_map,
     model: MODEL,
   })
 }
