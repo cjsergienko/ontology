@@ -22,7 +22,7 @@
 
 * { box-sizing: border-box; }
 
-button, a, [role="button"], [role="tab"], [role="link"] { cursor: pointer; }
+button, a, [role="button"], [role="tab"], [role="link"] { cursor: pointer !important; }
 
 html, body { height: 100%; }
 
