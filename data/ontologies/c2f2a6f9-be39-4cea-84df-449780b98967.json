@@ -181,7 +181,7 @@
         "x": 400,
         "y": 520
       },
-      "semantics": "Day-to-day operating mode \u2014 1 sentence only",
+      "semantics": "Day-to-day responsibilities \u2014 plain \"- \" bullet list, max 5 items, each one sentence.",
       "metadata": {}
     },
     {
