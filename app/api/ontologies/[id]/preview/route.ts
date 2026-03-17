@@ -43,26 +43,35 @@ function normalizeLabel(label: string): string {
   return label.toLowerCase().replace(/_/g, ' ')
 }
 
-function measureNodeCoverage(output: string, o: Ontology) {
+function sectionPresent(output: string, n: { label: string; metadata?: Record<string, string> }): boolean {
   const lower = output.toLowerCase()
-  // Only count non-context, non-property nodes (dimension + value + class)
+  const aliases = n.metadata?.aliases ? n.metadata.aliases.split(',') : []
+  const terms = [normalizeLabel(n.label), ...aliases]
+  return terms.some(t => lower.includes(t.trim().toLowerCase()))
+}
+
+function measureNodeCoverage(output: string, o: Ontology) {
+  // Score only non-context dimension nodes (section-level coverage)
   const scorable = o.nodes.filter(n =>
-    n.metadata?.generate !== 'context' &&
-    (n.type === 'dimension' || n.type === 'value' || n.type === 'class')
+    n.metadata?.generate !== 'context' && n.type === 'dimension'
   )
   const mentionedSet = new Set(
-    scorable.filter(n => lower.includes(normalizeLabel(n.label))).map(n => n.id)
+    scorable.filter(n => sectionPresent(output, n)).map(n => n.id)
   )
   return {
     total: scorable.length,
     mentioned: mentionedSet.size,
     pct: scorable.length ? Math.round((mentionedSet.size / scorable.length) * 100) : 0,
-    nodes: o.nodes.map(n => ({
-      label: n.label,
-      type: n.type,
-      mentioned: mentionedSet.has(n.id),
-      excluded: n.metadata?.generate === 'context' || n.type === 'property' || n.type === 'constraint',
-    })),
+    nodes: o.nodes.map(n => {
+      const isScorableDim = n.metadata?.generate !== 'context' && n.type === 'dimension'
+      const isExcluded = !isScorableDim
+      return {
+        label: n.label,
+        type: n.type,
+        mentioned: isScorableDim ? mentionedSet.has(n.id) : false,
+        excluded: isExcluded,
+      }
+    }),
   }
 }
 

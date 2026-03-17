@@ -41,7 +41,8 @@
       },
       "semantics": "What is this role? Generate as 2 sentences maximum. Be concise and direct.",
       "metadata": {
-        "category_key": "role_identity"
+        "category_key": "role_identity",
+        "aliases": "about the role,the role,about this role,role overview"
       }
     },
     {
@@ -55,7 +56,8 @@
       },
       "semantics": "Who is hiring?",
       "metadata": {
-        "category_key": "org_context"
+        "category_key": "org_context",
+        "aliases": "about the company,the company,company overview,who we are,about us"
       }
     },
     {
@@ -70,7 +72,8 @@
       "semantics": "Who should apply? Generate as exactly 1 short paragraph, no sub-headings, no bullet points. Weave all candidate attributes inline.",
       "metadata": {
         "category_key": "candidate_profile",
-        "length": "single-paragraph"
+        "length": "single-paragraph",
+        "aliases": "who we're looking for,who you are,about you,ideal candidate,what we're looking for,looking for"
       }
     },
     {
@@ -100,7 +103,8 @@
       "semantics": "What hard skills? Write 1 sentence intro, then a plain list using \"- \" prefix (not numbers). Max 6 items. Each item: technology or skill name followed by a brief qualifier. Keep it short.",
       "metadata": {
         "category_key": "tech_reqs",
-        "format": "list"
+        "format": "list",
+        "aliases": "technical requirements,requirements,technical environment,tech stack,technical skills"
       }
     },
     {
@@ -115,7 +119,8 @@
       "semantics": "Compensation value proposition. Format: salary range on its own bolded line, then 2\u20133 short bullet points for key benefits. No sub-headings. Very concise.",
       "metadata": {
         "category_key": "comp_benefits",
-        "format": "salary-line"
+        "format": "salary-line",
+        "aliases": "compensation,compensation & benefits,what we offer,salary,benefits,pay"
       }
     },
     {
@@ -174,7 +179,7 @@
     },
     {
       "id": "dim_role_archetype",
-      "type": "property",
+      "type": "dimension",
       "label": "role_archetype",
       "description": "Day-to-day operating mode of the role",
       "position": {
@@ -182,7 +187,9 @@
         "y": 520
       },
       "semantics": "Day-to-day responsibilities \u2014 plain \"- \" bullet list, max 5 items, each one sentence.",
-      "metadata": {}
+      "metadata": {
+        "aliases": "what you'll be doing,what you will be doing,responsibilities,core responsibilities,your responsibilities,what you'll do"
+      }
     },
     {
       "id": "dim_functional_domain",
