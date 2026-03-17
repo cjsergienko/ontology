@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import {
   ReactFlow,
@@ -10,24 +10,27 @@ import {
   addEdge,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   BackgroundVariant,
   type Connection,
   type Node,
   type Edge,
   type NodeTypes,
   MarkerType,
+  ReactFlowProvider,
 } from '@xyflow/react'
 import type { Ontology, OntologyNode, OntologyEdge, NodeType, EdgeType } from '@/lib/types'
 import { NODE_COLORS, NODE_LABELS, EDGE_LABELS } from '@/lib/types'
 import { OntologyNodeComponent } from './OntologyNode'
 import { NodePanel } from './NodePanel'
 import {
-  SaveIcon, ArrowLeftIcon, PlusIcon, NetworkIcon,
+  SaveIcon, ArrowLeftIcon, NetworkIcon,
   BoxIcon, LinkIcon, LayersIcon, ZapIcon, CrownIcon, FilterIcon,
-  DownloadIcon, PlayIcon,
+  DownloadIcon, PlayIcon, LayoutDashboardIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { JDPreviewPanel } from './JDPreviewPanel'
+import { applyDagreLayout } from '@/lib/layout'
 
 const nodeTypes: NodeTypes = {
   ontology: OntologyNodeComponent,
@@ -35,6 +38,14 @@ const nodeTypes: NodeTypes = {
 
 interface Props {
   initialOntology: Ontology
+}
+
+export function OntologyEditor(props: Props) {
+  return (
+    <ReactFlowProvider>
+      <OntologyEditorInner {...props} />
+    </ReactFlowProvider>
+  )
 }
 
 function toFlowNodes(nodes: OntologyNode[]): Node[] {
@@ -70,10 +81,11 @@ const NODE_TYPE_OPTIONS: { type: NodeType; icon: React.ReactNode; desc: string }
 
 const EDGE_TYPE_OPTIONS: EdgeType[] = ['is_a', 'has_property', 'has_value', 'relates_to', 'part_of', 'constrains', 'instance_of']
 
-export function OntologyEditor({ initialOntology }: Props) {
+function OntologyEditorInner({ initialOntology }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
+  const { fitView } = useReactFlow()
 
   const [ontology, setOntology] = useState(initialOntology)
   const [nodes, setNodes, onNodesChange] = useNodesState(toFlowNodes(initialOntology.nodes))
@@ -82,7 +94,22 @@ export function OntologyEditor({ initialOntology }: Props) {
   const [saved, setSaved] = useState(false)
   const [addEdgeType, setAddEdgeType] = useState<EdgeType>('relates_to')
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
-  const [reactFlowInstance, setReactFlowInstance] = useState<ReturnType<typeof import('@xyflow/react').useReactFlow> | null>(null)
+
+  const autoLayout = useCallback(() => {
+    setNodes(ns => {
+      const laid = applyDagreLayout(ns, edges)
+      setTimeout(() => fitView({ padding: 0.15, duration: 400 }), 50)
+      return laid
+    })
+  }, [edges, fitView, setNodes])
+
+  // Auto-layout on first mount
+  useEffect(() => {
+    if (initialOntology.nodes.length > 0) {
+      setTimeout(autoLayout, 100)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // URL-derived UI state
   const previewOpen = searchParams.get('panel') === 'preview'
@@ -275,6 +302,16 @@ export function OntologyEditor({ initialOntology }: Props) {
             Preview
           </button>
           <button
+            onClick={autoLayout}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition-all"
+            style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+          >
+            <LayoutDashboardIcon size={11} />
+            Layout
+          </button>
+          <button
             onClick={exportJSON}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition-all"
             style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
@@ -381,7 +418,7 @@ export function OntologyEditor({ initialOntology }: Props) {
             onNodeClick={onNodeClick}
             onEdgeClick={onEdgeClick}
             onPaneClick={onPaneClick}
-            onInit={(instance) => setReactFlowInstance(instance as never)}
+
             nodeTypes={nodeTypes}
             fitView
             fitViewOptions={{ padding: 0.2 }}

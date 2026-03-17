@@ -163,10 +163,10 @@ export async function POST(req: Request) {
 
   const rawNodes = (parsed.nodes ?? []) as Omit<OntologyNode, 'position'>[]
   const nodes = layoutNodes(rawNodes)
-  const edges: OntologyEdge[] = (parsed.edges ?? []).map((e: object) => ({
-    id: crypto.randomUUID(),
-    ...(e as OntologyEdge),
-  }))
+  const edges: OntologyEdge[] = (parsed.edges ?? []).map((e: object) => {
+    const edge = e as OntologyEdge
+    return { ...edge, id: edge.id || crypto.randomUUID() }
+  })
 
   const defaultName = files.length === 1 ? files[0].name : `${files.length} examples`
   const ontology = {
