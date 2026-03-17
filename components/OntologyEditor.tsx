@@ -263,7 +263,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
   }, [nodes, edges, ontology])
 
   return (
-    <div className="h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
+    <div className="h-full flex flex-col" style={{ background: 'var(--bg)' }}>
       {/* Header */}
       <header
         className="flex items-center justify-between px-5 py-3 shrink-0"

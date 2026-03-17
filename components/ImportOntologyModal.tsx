@@ -54,17 +54,17 @@ export function ImportOntologyModal({ onClose }: Props) {
       fd.append('file', file)
       const resp = await fetch('/api/ontologies/import', { method: 'POST', body: fd })
       if (!resp.ok) {
-        if (resp.status === 524 || resp.status === 504) {
-          throw new Error('Request timed out — the ontology file may be too large. Try a smaller file.')
-        }
-        const ct = resp.headers.get('content-type') ?? ''
-        if (ct.includes('application/json')) {
-          const err = await resp.json()
-          throw new Error(err.error ?? 'Import failed')
-        }
-        throw new Error(`Server error ${resp.status}`)
+        const err = await resp.json().catch(() => ({})) as { error?: string }
+        throw new Error(err.error ?? `Server error ${resp.status}`)
       }
-      const ontology = await resp.json()
+      const ct = resp.headers.get('content-type') ?? ''
+      let ontology: { id: string }
+      if (ct.includes('text/event-stream')) {
+        const { readSSE } = await import('@/lib/sse')
+        ontology = await readSSE(resp) as { id: string }
+      } else {
+        ontology = await resp.json()
+      }
       router.push(`/ontology/${ontology.id}`)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))

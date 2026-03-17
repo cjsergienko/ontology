@@ -24,15 +24,44 @@
 
 button, a, [role="button"], [role="tab"], [role="link"] { cursor: pointer !important; }
 
-html, body { height: 100%; }
+html { height: 100%; }
 
 body {
-  background: var(--bg);
+  isolation: isolate;
+  background: radial-gradient(140% 140% at 100% 0, #75d6b4 0%, #6e8bd1 60%, #9451ce 84%);
+  position: relative;
   color: var(--text);
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body::before {
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(140% 140% at 100% 0, #fbca64 0%, #f05ba4 50%, #f99d86 84%);
+  animation: 12s ease-in-out infinite gradient-shift;
+  position: fixed;
+  inset: 0;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { opacity: 0; }
+  50%       { opacity: 1; }
+}
+
+body > main {
+  flex: 1;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* React Flow overrides */

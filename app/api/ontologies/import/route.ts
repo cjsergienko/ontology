@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { saveOntology } from '@/lib/storage'
+import { sseStream } from '@/lib/sse'
 import type { OntologyNode, OntologyEdge, NodeType } from '@/lib/types'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY!
@@ -61,40 +62,43 @@ function layoutNodes(nodes: Omit<OntologyNode, 'position'>[]): OntologyNode[] {
   })
 }
 
+function buildOntology(parsed: { name?: string; description?: string; domain?: string; nodes: object[]; edges: object[] }, fallbackName: string) {
+  const now = new Date().toISOString()
+  const id = crypto.randomUUID()
+  const nodes = layoutNodes((parsed.nodes ?? []) as Omit<OntologyNode, 'position'>[])
+  const edges: OntologyEdge[] = (parsed.edges ?? []).map((e: object) => {
+    const edge = e as OntologyEdge
+    return { ...edge, id: edge.id || crypto.randomUUID() }
+  })
+  return { id, name: parsed.name ?? fallbackName, description: parsed.description ?? '', domain: parsed.domain ?? 'general', createdAt: now, updatedAt: now, nodes, edges }
+}
+
 export async function POST(req: Request) {
-  try {
   const formData = await req.formData()
   const file = formData.get('file') as File | null
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
   const bytes = await file.arrayBuffer()
-  const text = Buffer.from(bytes).toString('utf-8').slice(0, 100_000)
+  // Read full content — do NOT truncate before the JSON fast path
+  const fullText = Buffer.from(bytes).toString('utf-8')
 
-  // Try parsing directly as our JSON format first
+  // Fast path: already in our JSON format — no Claude, no size limit
   if (file.name.endsWith('.json') || file.type === 'application/json') {
     try {
-      const parsed = JSON.parse(text)
+      const parsed = JSON.parse(fullText)
       if (parsed.nodes && parsed.edges && parsed.name) {
-        const now = new Date().toISOString()
-        const id = crypto.randomUUID()
-        const nodes = layoutNodes((parsed.nodes ?? []) as Omit<OntologyNode, 'position'>[])
-        const edges: OntologyEdge[] = (parsed.edges ?? []).map((e: OntologyEdge) => ({
-          ...e, id: e.id || crypto.randomUUID(),
-        }))
-        const ontology = {
-          id, name: parsed.name, description: parsed.description ?? '',
-          domain: parsed.domain ?? 'general', createdAt: now, updatedAt: now, nodes, edges,
-        }
+        const ontology = buildOntology(parsed, file.name)
         saveOntology(ontology)
         return NextResponse.json(ontology)
       }
-    } catch { /* fall through to Claude */ }
+    } catch { /* not valid JSON or wrong shape — fall through to Claude */ }
   }
 
-  // Use Claude to convert any other format
-  let anthropicResp: Response
-  try {
-    anthropicResp = await fetch('https://api.anthropic.com/v1/messages', {
+  // Claude path: stream SSE so Cloudflare doesn't time out on large files
+  const textForClaude = fullText.slice(0, 150_000)
+
+  return sseStream(async () => {
+    const anthropicResp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': ANTHROPIC_API_KEY,
@@ -103,62 +107,26 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
-        max_tokens: 8192,
+        max_tokens: 16000,
         system: SYSTEM_PROMPT,
-        messages: [{
-          role: 'user',
-          content: `Convert this ontology file (${file.name}) to our JSON format:\n\n${text}`,
-        }],
+        messages: [{ role: 'user', content: `Convert this ontology file (${file.name}) to our JSON format:\n\n${textForClaude}` }],
       }),
     })
-  } catch (err) {
-    return NextResponse.json({ error: `Anthropic API unreachable: ${err}` }, { status: 502 })
-  }
 
-  if (!anthropicResp.ok) {
-    const err = await anthropicResp.text()
-    return NextResponse.json({ error: err }, { status: anthropicResp.status })
-  }
+    if (!anthropicResp.ok) throw new Error(await anthropicResp.text())
 
-  const claudeData = await anthropicResp.json()
-  const rawText: string = claudeData.content?.[0]?.text ?? ''
+    const claudeData = await anthropicResp.json()
+    const rawText: string = claudeData.content?.[0]?.text ?? ''
 
-  if (claudeData.stop_reason === 'max_tokens') {
-    return NextResponse.json({ error: 'Ontology file is too large — Claude could not finish generating. Try a smaller or simpler file.' }, { status: 500 })
-  }
+    if (claudeData.stop_reason === 'max_tokens') {
+      throw new Error('Ontology is too large for a single conversion pass. Try splitting it into smaller files.')
+    }
 
-  let parsed: { name: string; description: string; domain: string; nodes: object[]; edges: object[] }
-  try {
     const jsonMatch = rawText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/) ?? rawText.match(/(\{[\s\S]*\})/)
-    const jsonStr = jsonMatch ? jsonMatch[1] : rawText
-    parsed = JSON.parse(jsonStr)
-  } catch {
-    return NextResponse.json({ error: 'Failed to parse Claude response as JSON. The file may be in an unsupported format.' }, { status: 500 })
-  }
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[1] : rawText)
 
-  const now = new Date().toISOString()
-  const id = crypto.randomUUID()
-  const nodes = layoutNodes((parsed.nodes ?? []) as Omit<OntologyNode, 'position'>[])
-  const edges: OntologyEdge[] = (parsed.edges ?? []).map((e: object) => {
-    const edge = e as OntologyEdge
-    return { ...edge, id: edge.id || crypto.randomUUID() }
+    const ontology = buildOntology(parsed, file.name)
+    saveOntology(ontology)
+    return ontology
   })
-
-  const ontology = {
-    id,
-    name: parsed.name ?? file.name,
-    description: parsed.description ?? '',
-    domain: parsed.domain ?? 'general',
-    createdAt: now,
-    updatedAt: now,
-    nodes,
-    edges,
-  }
-
-  saveOntology(ontology)
-  return NextResponse.json(ontology)
-  } catch (err) {
-    console.error('[import] unhandled error:', err)
-    return NextResponse.json({ error: `Internal error: ${err instanceof Error ? err.message : String(err)}` }, { status: 500 })
-  }
 }

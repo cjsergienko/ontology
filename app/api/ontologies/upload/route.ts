@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { saveOntology } from '@/lib/storage'
+import { sseStream } from '@/lib/sse'
 import type { OntologyNode, OntologyEdge, NodeType } from '@/lib/types'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY!
@@ -121,9 +121,10 @@ export async function POST(req: Request) {
 
   contentBlocks.push({ type: 'text', text: instruction })
 
-  let anthropicResp: Response
-  try {
-    anthropicResp = await fetch('https://api.anthropic.com/v1/messages', {
+  const defaultName = files.length === 1 ? files[0].name : `${files.length} examples`
+
+  return sseStream(async () => {
+    const anthropicResp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': ANTHROPIC_API_KEY,
@@ -132,54 +133,40 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
-        max_tokens: 8192,
+        max_tokens: 16000,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: contentBlocks }],
       }),
     })
-  } catch (err) {
-    return NextResponse.json({ error: `Anthropic API unreachable: ${err}` }, { status: 502 })
-  }
 
-  if (!anthropicResp.ok) {
-    const err = await anthropicResp.text()
-    return NextResponse.json({ error: err }, { status: anthropicResp.status })
-  }
+    if (!anthropicResp.ok) throw new Error(await anthropicResp.text())
 
-  const claudeData = await anthropicResp.json()
-  const rawText: string = claudeData.content?.[0]?.text ?? ''
+    const claudeData = await anthropicResp.json()
+    const rawText: string = claudeData.content?.[0]?.text ?? ''
 
-  let parsed: { name: string; description: string; domain: string; nodes: object[]; edges: object[] }
-  try {
     const jsonMatch = rawText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/) ?? rawText.match(/(\{[\s\S]*\})/)
-    const jsonStr = jsonMatch ? jsonMatch[1] : rawText
-    parsed = JSON.parse(jsonStr)
-  } catch {
-    return NextResponse.json({ error: 'Failed to parse ontology from Claude response', raw: rawText.slice(0, 500) }, { status: 500 })
-  }
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[1] : rawText) as { name?: string; description?: string; domain?: string; nodes: object[]; edges: object[] }
 
-  const now = new Date().toISOString()
-  const id = crypto.randomUUID()
+    const now = new Date().toISOString()
+    const id = crypto.randomUUID()
+    const nodes = layoutNodes((parsed.nodes ?? []) as Omit<OntologyNode, 'position'>[])
+    const edges: OntologyEdge[] = (parsed.edges ?? []).map((e: object) => {
+      const edge = e as OntologyEdge
+      return { ...edge, id: edge.id || crypto.randomUUID() }
+    })
 
-  const rawNodes = (parsed.nodes ?? []) as Omit<OntologyNode, 'position'>[]
-  const nodes = layoutNodes(rawNodes)
-  const edges: OntologyEdge[] = (parsed.edges ?? []).map((e: object) => {
-    const edge = e as OntologyEdge
-    return { ...edge, id: edge.id || crypto.randomUUID() }
+    const ontology = {
+      id,
+      name: parsed.name ?? defaultName,
+      description: parsed.description ?? '',
+      domain: parsed.domain ?? 'general',
+      createdAt: now,
+      updatedAt: now,
+      nodes,
+      edges,
+    }
+
+    saveOntology(ontology)
+    return ontology
   })
-
-  const defaultName = files.length === 1 ? files[0].name : `${files.length} examples`
-  const ontology = {
-    id,
-    name: parsed.name ?? defaultName,
-    description: parsed.description ?? '',
-    domain: parsed.domain ?? 'general',
-    createdAt: now,
-    updatedAt: now,
-    nodes,
-    edges,
-  }
-
-  saveOntology(ontology)
-  return NextResponse.json(ontology)
 }
