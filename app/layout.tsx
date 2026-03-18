@@ -1,21 +1,27 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import './globals.css'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { SiteHeaderPivots } from '@/components/SiteHeaderPivots'
+import { SiteFooterPivots } from '@/components/SiteFooterPivots'
 
 export const metadata: Metadata = {
-  title: 'Ontology Builder',
-  description: 'Visual ontology, taxonomy & knowledge graph designer',
-  robots: { index: false, follow: false },
+  title: 'ontology.live — Visual Ontology & Knowledge Graph Designer',
+  description: 'Design ontologies, taxonomies, and knowledge graphs visually. The structural backbone for AI agent pipelines.',
+  robots: { index: true, follow: true },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const host = (await headers()).get('host') ?? ''
+  const isHiringAIHelp = host.includes('hiringaihelp.com')
+
   return (
     <html lang="en">
       <body>
-        <SiteHeader />
+        {isHiringAIHelp ? <SiteHeaderPivots /> : <SiteHeader />}
         <main>{children}</main>
-        <SiteFooter />
+        {isHiringAIHelp ? <SiteFooterPivots /> : <SiteFooter />}
       </body>
     </html>
   )
