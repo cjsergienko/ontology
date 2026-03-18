@@ -118,8 +118,8 @@ const PRICING = [
   },
   {
     name: 'VIP',
-    price: 'Contact',
-    period: '',
+    price: '€1,500',
+    period: '/month',
     tagline: 'On-premise & deep integration',
     highlighted: false,
     cta: 'Contact us',
@@ -718,7 +718,7 @@ export function LandingPage() {
                     <span style={{
                       fontFamily: "'Syne', sans-serif",
                       fontWeight: 800,
-                      fontSize: plan.price === 'Contact' ? 28 : 32,
+                      fontSize: 32,
                       color: plan.highlighted ? '#f1f5f9' : '#e2e8f0',
                       letterSpacing: '-0.02em',
                     }}>{plan.price}</span>
