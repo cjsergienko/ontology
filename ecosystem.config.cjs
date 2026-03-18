@@ -9,5 +9,12 @@ module.exports = {
         NODE_ENV: 'development',
       },
     },
+    {
+      name: 'tunnel-ontology-live',
+      script: 'cloudflared',
+      args: 'tunnel --config /Users/sserg/.cloudflared/config-ontology-live.yml run',
+      autorestart: true,
+      watch: false,
+    },
   ],
 }

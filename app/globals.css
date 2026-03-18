@@ -3,14 +3,14 @@
 @import "@xyflow/react/dist/style.css";
 
 :root {
-  --bg: #080c14;
-  --surface: #0d1420;
-  --surface2: #121a2b;
-  --border: #1e2d45;
-  --border2: #243550;
-  --text: #e2e8f0;
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface2: #f1f5f9;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --text: #0f172a;
   --text-muted: #64748b;
-  --text-dim: #334155;
+  --text-dim: #94a3b8;
   --accent: #f59e0b;
   --accent-dim: rgba(245, 158, 11, 0.12);
   --blue: #3b82f6;
@@ -59,9 +59,16 @@ body::before {
 
 body > main {
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
   display: flex;
   flex-direction: column;
+  padding: 16px;
+}
+
+/* Landing page — full bleed, no padding */
+body > main:has(> .landing-page) {
+  padding: 0;
+  overflow: visible;
 }
 
 /* React Flow overrides */
@@ -69,10 +76,10 @@ body > main {
   background: var(--bg) !important;
 }
 .react-flow__background pattern circle {
-  fill: #1e2d45 !important;
+  fill: #cbd5e1 !important;
 }
 .react-flow__edge-path {
-  stroke: #334155 !important;
+  stroke: #94a3b8 !important;
   stroke-width: 1.5 !important;
 }
 .react-flow__edge.selected .react-flow__edge-path,
@@ -103,7 +110,7 @@ body > main {
   overflow: hidden;
 }
 .react-flow__minimap-mask {
-  fill: rgba(8, 12, 20, 0.7) !important;
+  fill: rgba(241, 245, 249, 0.7) !important;
 }
 .react-flow__handle {
   background: var(--border2) !important;

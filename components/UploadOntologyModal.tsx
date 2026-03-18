@@ -89,7 +89,7 @@ export function UploadOntologyModal({ onClose }: Props) {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ background: 'rgba(8,12,20,0.85)' }}
+      style={{ background: 'rgba(15,23,42,0.5)' }}
       onClick={e => e.target === e.currentTarget && !loading && onClose()}
     >
       <div

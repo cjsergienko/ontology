@@ -113,7 +113,8 @@ export async function POST(req: Request) {
     if (!uploadResp.ok) throw new Error(`Files API upload failed: ${await uploadResp.text()}`)
     const { id: fileId } = await uploadResp.json()
 
-    // 2. Send message referencing the uploaded file
+    // 2. Send message referencing the uploaded file — use streaming so large responses
+    //    don't block the connection (avoids Cloudflare tunnel timeout on long generations)
     const anthropicResp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -124,7 +125,8 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
-        max_tokens: 16000,
+        max_tokens: 64000,
+        stream: true,
         system: SYSTEM_PROMPT,
         messages: [{
           role: 'user',
@@ -138,7 +140,29 @@ export async function POST(req: Request) {
 
     if (!anthropicResp.ok) throw new Error(await anthropicResp.text())
 
-    const claudeData = await anthropicResp.json()
+    // Accumulate text from the Claude SSE stream
+    let rawText = ''
+    let stopReason = ''
+    const reader = anthropicResp.body!.getReader()
+    const decoder = new TextDecoder()
+    let remainder = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      const chunk = remainder + decoder.decode(value, { stream: true })
+      const lines = chunk.split('\n')
+      remainder = lines.pop() ?? ''
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        const payload = line.slice(6).trim()
+        if (!payload || payload === '[DONE]') continue
+        try {
+          const event = JSON.parse(payload)
+          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') rawText += event.delta.text
+          if (event.type === 'message_delta' && event.delta?.stop_reason) stopReason = event.delta.stop_reason
+        } catch { /* ignore malformed SSE lines */ }
+      }
+    }
 
     // 3. Delete the uploaded file (best-effort, don't fail on error)
     fetch(`https://api.anthropic.com/v1/files/${fileId}`, {
@@ -146,9 +170,7 @@ export async function POST(req: Request) {
       headers: { 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-beta': 'files-api-2025-04-14' },
     }).catch(() => {})
 
-    const rawText: string = claudeData.content?.[0]?.text ?? ''
-
-    if (claudeData.stop_reason === 'max_tokens') {
+    if (stopReason === 'max_tokens') {
       throw new Error('Ontology is too large for a single conversion pass. Try splitting it into smaller files.')
     }
 

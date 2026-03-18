@@ -1,5 +1,14 @@
 'use client'
 
+function uuid(): string {
+  try { return crypto.randomUUID() } catch {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
+    })
+  }
+}
+
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { XIcon, PlayIcon, AlertCircleIcon, ClockIcon } from 'lucide-react'
@@ -161,7 +170,7 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
         throw new Error(err.error || 'Generation failed')
       }
       const data: PreviewResult = await resp.json()
-      const entry: HistoryEntry = { id: crypto.randomUUID(), timestamp: Date.now(), prompt, result: data }
+      const entry: HistoryEntry = { id: uuid(), timestamp: Date.now(), prompt, result: data }
       const updated = [entry, ...history]
       setHistory(updated)
       saveHistory(ontologyId, updated)
@@ -485,7 +494,7 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
                         <div className="flex flex-wrap gap-1.5">
                           {result.node_coverage.nodes.filter(n => !n.excluded && !n.mentioned).map(n => (
                             <span key={n.label} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs"
-                              style={{ background: 'var(--surface2)', color: '#64748b', border: '1px solid #334155' }}>
+                              style={{ background: 'var(--surface2)', color: '#64748b', border: '1px solid var(--border2)' }}>
                               {n.label}
                             </span>
                           ))}
@@ -499,7 +508,7 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
                         <div className="flex flex-wrap gap-1.5">
                           {result.node_coverage.nodes.filter(n => n.excluded).map(n => (
                             <span key={n.label} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs"
-                              style={{ background: 'transparent', color: '#334155', border: '1px solid #243550' }}>
+                              style={{ background: 'transparent', color: 'var(--text-dim)', border: '1px solid var(--border)' }}>
                               {n.label}
                             </span>
                           ))}

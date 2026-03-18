@@ -1,23 +1,133 @@
+'use client'
+
+import { usePathname } from 'next/navigation'
+
+const Logo = ({ size = 22 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="11" cy="11" r="3.5" fill="#6366f1"/>
+    <circle cx="3" cy="4" r="2.5" fill="#6366f1" opacity="0.7"/>
+    <circle cx="19" cy="4" r="2.5" fill="#6366f1" opacity="0.7"/>
+    <circle cx="3" cy="18" r="2.5" fill="#6366f1" opacity="0.7"/>
+    <circle cx="19" cy="18" r="2.5" fill="#6366f1" opacity="0.7"/>
+    <line x1="11" y1="11" x2="3" y2="4" stroke="#6366f1" strokeWidth="1.5" opacity="0.5"/>
+    <line x1="11" y1="11" x2="19" y2="4" stroke="#6366f1" strokeWidth="1.5" opacity="0.5"/>
+    <line x1="11" y1="11" x2="3" y2="18" stroke="#6366f1" strokeWidth="1.5" opacity="0.5"/>
+    <line x1="11" y1="11" x2="19" y2="18" stroke="#6366f1" strokeWidth="1.5" opacity="0.5"/>
+  </svg>
+)
+
 export function SiteHeader() {
+  const pathname = usePathname()
+  const isLanding = pathname === '/'
+  const isApp = pathname.startsWith('/dashboard') || pathname.startsWith('/ontology')
+
   return (
     <header style={{
-      background: '#fff',
-      borderBottom: '1px solid #e5e7eb',
+      background: '#0a0d18',
+      borderBottom: '1px solid rgba(99,102,241,0.12)',
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'space-between',
       padding: '0 40px',
-      height: '60px',
+      height: '56px',
       flexShrink: 0,
       zIndex: 100,
+      backdropFilter: 'blur(12px)',
+      position: 'sticky',
+      top: 0,
     }}>
+      {/* Logo */}
       <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-        <svg width="22" height="30" viewBox="0 0 29 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M7.80949 39.967C4.84769 39.7018 2.85138 38.885 1.74091 37.4841C1.31639 36.9487 1.21369 36.6906 0.946783 35.4996C-0.276268 30.0349 -0.313613 25.1621 0.830354 20.4045C1.20765 18.8364 1.70467 17.3834 2.328 16.0246C3.277 13.9576 4.63186 12.0073 5.74068 11.112L5.97848 10.9198L5.90873 10.5627C5.80329 10.0239 5.82141 8.33782 5.93949 7.65896C6.15752 6.40755 6.47715 5.43189 7.05215 4.26187C8.25213 1.82217 10.0041 0.139962 11.4814 0.0103909C11.7768 -0.015634 11.8559 0.000424094 12.1206 0.137747C12.6885 0.432328 12.817 0.956703 12.7204 2.58132C12.6204 4.26519 12.4546 5.30785 11.8428 8.09972C11.6028 9.19554 11.4072 10.1175 11.4072 10.1485C11.4078 10.1801 11.4891 10.0189 11.5885 9.79079C11.9954 8.85445 12.5562 8.06318 13.3184 7.34943C13.7314 6.96293 13.7918 6.87766 14.0708 6.28573C14.4487 5.48449 15.2752 3.98335 15.6624 3.3953C16.0957 2.73637 16.7827 1.88031 17.121 1.57632C17.6543 1.09735 18.176 0.932339 18.5462 1.12503C18.7714 1.24242 18.9564 1.51043 19.1009 1.92793C19.3288 2.58797 19.2349 4.29122 18.9103 5.37485C18.8669 5.51938 18.8499 5.63787 18.8724 5.63787C18.8949 5.63787 19.0591 5.58748 19.2376 5.52547C19.951 5.27795 20.615 5.17717 21.5667 5.17219C22.613 5.16665 23.0122 5.24196 23.7487 5.58527C24.6252 5.99391 25.1799 6.54708 25.6072 7.43969C26.2398 8.76253 26.102 10.3257 25.2392 11.6037C24.7746 12.2914 23.8426 13.1043 22.9639 13.5871C22.7091 13.7272 22.5004 13.854 22.5004 13.869C22.5004 13.9531 23.0924 14.5689 23.5241 14.9338C24.1545 15.4664 24.9091 15.9903 26.2003 16.7904C27.8967 17.8414 28.4179 18.3015 28.804 19.0878C28.9962 19.4787 29.0056 19.5214 28.9984 20.0291C28.9946 20.3215 28.9907 20.997 28.9896 21.5308C28.9869 22.641 28.91 23.1239 28.6206 23.847C28.145 25.0364 27.1262 26.2602 25.9531 27.0503C24.8246 27.8111 23.8151 28.2076 22.2609 28.5011C21.6013 28.6262 21.3026 28.7691 21.017 29.0969C20.3091 29.9103 20.4689 31.3151 21.5876 34.1103C22.0627 35.2969 22.1456 35.6286 22.0616 36.0073C21.9479 36.5184 21.4855 37.0218 20.7457 37.4409C18.7648 38.5617 15.2922 39.5207 11.8735 39.8911C10.9503 39.9908 8.57451 40.0357 7.80949 39.967ZM22.8925 27.1029C23.5988 26.9357 24.3879 26.6156 24.9844 26.2546C25.4166 25.9927 26.2343 25.3277 26.2739 25.2059C26.2871 25.1649 26.1217 25.1339 25.784 25.1134C24.8663 25.058 24.0804 24.7546 23.5219 24.2385C23.0578 23.8105 22.9167 23.3802 23.1594 23.1355C23.333 22.9605 23.5268 23.0021 24.0623 23.3287C24.6488 23.6865 25.0404 23.8354 25.6033 23.914C26.4502 24.0331 27.1317 23.7496 27.3931 23.1693C27.598 22.7147 27.4755 22.1853 27.0988 21.8957C26.9994 21.8193 26.6968 21.6781 26.4254 21.5823C25.7351 21.3381 25.3188 21.1056 24.9948 20.7816C24.6598 20.4477 24.5895 20.2429 24.7405 20.0385C24.9031 19.8176 25.1167 19.8287 25.6884 20.0884C26.5715 20.4893 26.9395 20.5374 27.3882 20.3099C27.732 20.136 27.8731 19.8863 27.7754 19.6271C27.6386 19.2639 26.9241 18.6908 25.6582 17.9288C23.8316 16.8286 22.4482 15.7799 21.4569 14.7433L21.045 14.3119L20.0565 14.3014C19.4364 14.2942 18.8735 14.2566 18.5462 14.1995C17.1029 13.9476 15.8321 14.0506 14.8293 14.5008C13.5705 15.0655 12.5446 16.1603 12.0152 17.5036C11.7159 18.2639 11.6533 18.6376 11.6571 19.647C11.6604 20.4793 11.6742 20.605 11.8109 21.059C12.3238 22.7556 13.3986 24.1305 15.1412 25.3194C16.3741 26.1605 18.4473 26.9767 19.928 27.2048C20.7265 27.3277 22.1489 27.279 22.8925 27.1029ZM18.0519 19.2495C17.534 19.0922 16.5982 19.0551 16.0391 19.1692C15.474 19.2844 15.3988 19.2827 15.2801 19.1504C15.1407 18.9953 15.1884 18.5307 15.3867 18.1232C15.5849 17.7146 16.0682 17.2289 16.4878 17.0174C16.7794 16.8701 16.8717 16.8513 17.3105 16.8513C17.9146 16.8508 18.2068 16.9742 18.645 17.4144C19.0278 17.7998 19.2217 18.2245 19.2277 18.6946C19.2327 19.0341 19.2244 19.0568 19.0427 19.2102C18.8142 19.4023 18.5863 19.4112 18.0519 19.2495Z" fill="black"/>
-        </svg>
-        <span style={{ fontFamily: 'system-ui, sans-serif', fontWeight: 600, fontSize: '15px', color: '#111827', letterSpacing: '-0.01em' }}>
-          AlpacaRelay
+        <Logo />
+        <span style={{
+          fontFamily: "'Syne', sans-serif",
+          fontWeight: 700,
+          fontSize: '15px',
+          color: '#f1f5f9',
+          letterSpacing: '-0.02em',
+        }}>
+          ontology<span style={{ color: '#6366f1' }}>.live</span>
         </span>
       </a>
+
+      {/* Landing page nav */}
+      {isLanding && (
+        <nav style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {[
+            { label: 'Features', href: '/#features' },
+            { label: 'Pricing', href: '/#pricing' },
+          ].map(item => (
+            <a
+              key={item.label}
+              href={item.href}
+              style={{
+                fontSize: 13,
+                color: '#64748b',
+                textDecoration: 'none',
+                padding: '6px 14px',
+                borderRadius: 6,
+                transition: 'color 0.15s',
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
+            >
+              {item.label}
+            </a>
+          ))}
+          <a
+            href="/dashboard"
+            style={{
+              marginLeft: 8,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 13,
+              color: '#f1f5f9',
+              textDecoration: 'none',
+              padding: '7px 18px',
+              borderRadius: 9999,
+              background: '#6366f1',
+              fontFamily: "'Syne', sans-serif",
+              fontWeight: 700,
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#4f46e5')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#6366f1')}
+          >
+            Launch App
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2.5 6h7M6 2.5l3.5 3.5L6 9.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </a>
+        </nav>
+      )}
+
+      {/* App nav — back to home */}
+      {isApp && (
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <a
+            href="/"
+            style={{
+              fontSize: 12,
+              color: '#475569',
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontFamily: "'JetBrains Mono', monospace",
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M9.5 6h-7M6 2.5L2.5 6 6 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            ontology.live
+          </a>
+        </nav>
+      )}
     </header>
   )
 }

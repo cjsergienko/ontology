@@ -62,7 +62,7 @@ export function OntologyHome({ initialOntologies }: Props) {
     DOMAIN_COLORS[domain.toLowerCase()] ?? DOMAIN_COLORS.default
 
   return (
-    <div className="h-full flex flex-col" style={{ background: 'var(--bg)' }}>
+    <div className="h-full flex flex-col" style={{ background: 'var(--bg)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 24px rgba(0,0,0,0.08)' }}>
       {/* Header */}
       <header style={{ borderBottom: '1px solid var(--border)' }} className="flex items-center justify-between px-8 py-5">
         <div className="flex items-center gap-4">
@@ -161,7 +161,7 @@ export function OntologyHome({ initialOntologies }: Props) {
                 <p className="text-xs mb-6" style={{ color: 'var(--text-dim)' }}>
                   {ontologies.length} ontolog{ontologies.length === 1 ? 'y' : 'ies'}
                 </p>
-                <div className="grid grid-cols-1 gap-3 max-w-3xl" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+                <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
                   {ontologies.map(o => (
                     <div
                       key={o.id}
@@ -242,7 +242,7 @@ export function OntologyHome({ initialOntologies }: Props) {
       {creating && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50"
-          style={{ background: 'rgba(8,12,20,0.85)' }}
+          style={{ background: 'rgba(15,23,42,0.5)' }}
           onClick={(e) => e.target === e.currentTarget && closeModal()}
         >
           <div

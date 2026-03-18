@@ -1,5 +1,14 @@
 'use client'
 
+function uuid(): string {
+  try { return crypto.randomUUID() } catch {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
+    })
+  }
+}
+
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import {
@@ -65,8 +74,8 @@ function toFlowEdges(edges: OntologyEdge[]): Edge[] {
     target: e.target,
     label: e.label || EDGE_LABELS[e.type as EdgeType] || e.type,
     data: { type: e.type, label: e.label },
-    markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12, color: '#334155' },
-    style: { stroke: '#334155', strokeWidth: 1.5 },
+    markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12, color: '#94a3b8' },
+    style: { stroke: '#94a3b8', strokeWidth: 1.5 },
   }))
 }
 
@@ -151,11 +160,11 @@ function OntologyEditorInner({ initialOntology }: Props) {
     (connection: Connection) => {
       const newEdge: Edge = {
         ...connection,
-        id: crypto.randomUUID(),
+        id: uuid(),
         label: EDGE_LABELS[addEdgeType],
         data: { type: addEdgeType, label: EDGE_LABELS[addEdgeType] },
-        markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12, color: '#334155' },
-        style: { stroke: '#334155', strokeWidth: 1.5 },
+        markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12, color: '#94a3b8' },
+        style: { stroke: '#94a3b8', strokeWidth: 1.5 },
       } as Edge
       setEdges(eds => addEdge(newEdge, eds))
     },
@@ -163,7 +172,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
   )
 
   const addNode = useCallback((type: NodeType) => {
-    const id = crypto.randomUUID()
+    const id = uuid()
     const center = reactFlowWrapper.current
       ? { x: reactFlowWrapper.current.clientWidth / 2 - 80, y: reactFlowWrapper.current.clientHeight / 2 - 30 }
       : { x: 300, y: 200 }
@@ -263,7 +272,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
   }, [nodes, edges, ontology])
 
   return (
-    <div className="h-full flex flex-col" style={{ background: 'var(--bg)' }}>
+    <div className="h-full flex flex-col" style={{ background: 'var(--bg)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 24px rgba(0,0,0,0.08)' }}>
       {/* Header */}
       <header
         className="flex items-center justify-between px-5 py-3 shrink-0"
@@ -463,13 +472,13 @@ function OntologyEditorInner({ initialOntology }: Props) {
               variant={BackgroundVariant.Dots}
               gap={24}
               size={1}
-              color="#1e2d45"
+              color="#e2e8f0"
             />
             <Controls position="bottom-left" />
             <MiniMap
               position="bottom-right"
               nodeColor={(n) => NODE_COLORS[(n.data as unknown as OntologyNode)?.type ?? 'class']}
-              maskColor="rgba(8,12,20,0.7)"
+              maskColor="rgba(241,245,249,0.7)"
             />
           </ReactFlow>
 

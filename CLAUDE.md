@@ -4,11 +4,12 @@
 
 This is the **ontology-as-foundation hub** — a visual web tool for designing ontologies, taxonomies, and knowledge graphs that drive AI agent pipelines. The ontology builder itself is at `/Users/sserg/ontology/`. The broader vision: ontologies defined here become the structural backbone for specialized LLM agent clusters across multiple domains.
 
-**Live URL:** https://hiringaihelp.com
+**Live URL:** https://ontology.live (also accessible at https://hiringaihelp.com)
 **Port:** 3900
 **PM2 name:** `ontology-builder`
+**Tunnel:** `tunnel-ontology-live` → `~/.cloudflared/config-ontology-live.yml`
 **Stack:** Next.js 16 (Turbopack, dev mode), React Flow, TypeScript, Tailwind v4
-**Data storage:** `/Users/sserg/ontology/data/ontologies/*.json` (file-based, not gitignored)
+**Data storage:** `/Users/sserg/ontology/data/ontologies.db` (SQLite via better-sqlite3)
 
 ---
 
@@ -28,8 +29,9 @@ pm2 logs ontology-builder --lines 50
 cd /Users/sserg/ontology && npm run dev -- --port 3900
 ```
 
-Cloudflare tunnel `tunnel-hiringaihelp` → `localhost:3900`
-Config: `~/.cloudflared/config-hiringaihelp.yml`
+Cloudflare tunnels:
+- `tunnel-ontology-live` → `~/.cloudflared/config-ontology-live.yml` (ontology.live)
+- `tunnel-hiringaihelp` → `~/.cloudflared/config-hiringaihelp.yml` (hiringaihelp.com, legacy)
 
 ---
 
@@ -110,13 +112,6 @@ Created from `/Users/sserg/jd_creation_ai/taxonomy/jd_taxonomy_v2.yaml`
 ---
 
 ## Related Projects (Same Machine)
-
-### jd_creation_ai — `/Users/sserg/jd_creation_ai/`
-Python FastAPI + LangGraph multi-agent JD generation pipeline.
-- Taxonomy: `taxonomy/jd_taxonomy_v2.yaml` (43 dims, 42 role families, 1,466 O*NET skills)
-- Pipeline: Strategy → Router → Validator → 6 parallel clusters → Combiner → Scorer
-- API: `POST /api/v1/generate-jd` (runs on port 8000 via docker or uvicorn)
-- See: `jd_creation_ai/CLAUDE.md` and `jd_creation_ai/.claude/memory/ARCHITECTURE.md`
 
 ### hiring — `/Users/sserg/hiring/`
 Next.js 15 SaaS app — PM2 `hiring`, port 3500 (not exposed publicly anymore).
