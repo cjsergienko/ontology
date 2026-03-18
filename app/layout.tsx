@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
+import Script from 'next/script'
 import './globals.css'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
@@ -19,6 +20,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body>
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-QN69YV0RFG" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-QN69YV0RFG');
+        `}</Script>
         {isHiringAIHelp ? <SiteHeaderPivots /> : <SiteHeader />}
         <main>{children}</main>
         {isHiringAIHelp ? <SiteFooterPivots /> : <SiteFooter />}
