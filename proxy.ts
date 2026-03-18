@@ -10,6 +10,10 @@ function isPublic(pathname: string): boolean {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default auth(function middleware(req: NextRequest & { auth?: any }) {
   const { pathname } = req.nextUrl
+  const host = req.headers.get('host') ?? ''
+
+  // hiringaihelp.com is a separate service — no auth required
+  if (host.includes('hiringaihelp.com')) return NextResponse.next()
 
   if (isPublic(pathname)) return NextResponse.next()
 
