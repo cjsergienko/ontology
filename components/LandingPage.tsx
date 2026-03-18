@@ -86,7 +86,7 @@ const PRICING = [
     tagline: 'For individuals building structured domains',
     highlighted: false,
     cta: 'Get started',
-    ctaHref: '/dashboard',
+    ctaHref: '/login',
     features: [
       '5 ontologies',
       '100 nodes per ontology',
@@ -104,7 +104,7 @@ const PRICING = [
     highlighted: true,
     badge: 'Most Popular',
     cta: 'Start with Pro',
-    ctaHref: '/dashboard',
+    ctaHref: '/login',
     features: [
       '50 ontologies',
       '1,000 nodes per ontology',
@@ -434,7 +434,7 @@ export function LandingPage() {
 
             <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
               <a
-                href="/dashboard"
+                href="/login"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '14px 28px',
@@ -892,7 +892,7 @@ export function LandingPage() {
             Visual graph editor · YAML export · AI pipeline ready
           </p>
           <a
-            href="/dashboard"
+            href="/login"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 10,
               padding: '16px 36px',

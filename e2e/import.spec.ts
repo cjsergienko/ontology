@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test'
 
-const PIN = '7291'
-
 // Minimal valid ontology in our internal JSON format
 const VALID_ONTOLOGY_JSON = JSON.stringify({
   name: 'E2E Test Ontology',
@@ -20,9 +18,8 @@ const IMPORT_MODAL_TITLE = 'Upload Ontology File'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function login(page: any) {
-  await page.goto('/login')
-  await page.getByPlaceholder('PIN').fill(PIN)
-  await page.getByRole('button', { name: 'Enter' }).click()
+  await page.request.post('/api/auth/test')
+  await page.goto('/dashboard')
   await expect(page).toHaveURL('/dashboard')
 }
 
@@ -134,7 +131,7 @@ test('importing valid JSON ontology shows its name in the editor', async ({ page
 
 test('POST /api/ontologies/import with no file returns 400', async ({ request }) => {
   // Authenticate first
-  await request.post('/api/auth', { data: { pin: PIN } })
+  await request.post('/api/auth/test')
 
   const res = await request.post('/api/ontologies/import', {
     multipart: {},
@@ -145,7 +142,7 @@ test('POST /api/ontologies/import with no file returns 400', async ({ request })
 })
 
 test('POST /api/ontologies/import with valid JSON returns ontology', async ({ request }) => {
-  await request.post('/api/auth', { data: { pin: PIN } })
+  await request.post('/api/auth/test')
 
   const res = await request.post('/api/ontologies/import', {
     multipart: {
@@ -166,7 +163,7 @@ test('POST /api/ontologies/import with valid JSON returns ontology', async ({ re
 })
 
 test('POST /api/ontologies/import with valid JSON assigns positions to nodes', async ({ request }) => {
-  await request.post('/api/auth', { data: { pin: PIN } })
+  await request.post('/api/auth/test')
 
   const res = await request.post('/api/ontologies/import', {
     multipart: {

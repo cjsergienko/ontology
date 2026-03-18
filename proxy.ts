@@ -16,8 +16,11 @@ export default auth(function middleware(req: NextRequest & { auth?: any }) {
   // Google OAuth session
   if (req.auth?.user) return NextResponse.next()
 
-  // Legacy PIN cookie (keeps e2e tests working)
-  if (req.cookies.get('ontology_auth')?.value === '1') return NextResponse.next()
+  // Dev-only test bypass (e2e tests only — never active in production)
+  if (process.env.NODE_ENV !== 'production' &&
+      req.cookies.get('ontology_test_session')?.value === '1') {
+    return NextResponse.next()
+  }
 
   const loginUrl = req.nextUrl.clone()
   loginUrl.pathname = '/login'
