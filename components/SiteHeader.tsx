@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { SignOutButton } from './SignOutButton'
 
 const Logo = ({ size = 22 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -103,9 +104,9 @@ export function SiteHeader() {
         </nav>
       )}
 
-      {/* App nav — back to home */}
+      {/* App nav — back to home + sign out */}
       {isApp && (
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <a
             href="/"
             style={{
@@ -126,6 +127,7 @@ export function SiteHeader() {
             </svg>
             ontology.live
           </a>
+          <SignOutButton />
         </nav>
       )}
     </header>
