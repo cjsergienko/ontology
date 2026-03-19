@@ -250,6 +250,7 @@ function HeroGraph() {
       <text className="lbl lbl6" x="200" y="348" textAnchor="middle" fontSize="11" fill="#c4b5fd" fontFamily="JetBrains Mono, monospace">Senior</text>
       <text className="lbl lbl7" x="320" y="348" textAnchor="middle" fontSize="11" fill="#c4b5fd" fontFamily="JetBrains Mono, monospace">hiring</text>
       <text className="lbl lbl8" x="50" y="332" textAnchor="middle" fontSize="10" fill="#6ee7b7" fontFamily="JetBrains Mono, monospace">is_a</text>
+      <text className="lbl lbl8" x="470" y="332" textAnchor="middle" fontSize="10" fill="#6ee7b7" fontFamily="JetBrains Mono, monospace">has_value</text>
     </svg>
   )
 }
