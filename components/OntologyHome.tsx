@@ -5,8 +5,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import type { NodeType } from '@/lib/types'
 import type { OntologyListItem } from '@/lib/storage'
 import { PlusIcon, BoxIcon, NetworkIcon, TrashIcon, ArrowRightIcon } from 'lucide-react'
-import { UploadOntologyModal } from './UploadOntologyModal'
-import { ImportOntologyModal } from './ImportOntologyModal'
+import { NewOntologyModal } from './NewOntologyModal'
 import { CapabilityTiles } from './CapabilityTiles'
 
 interface Props {
@@ -129,28 +128,14 @@ export function OntologyHome({ initialOntologies }: Props) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const [ontologies, setOntologies] = useState(initialOntologies)
-  const [form, setForm] = useState({ name: '', description: '', domain: '' })
   const [deleting, setDeleting] = useState<string | null>(null)
 
   const modal = searchParams.get('modal')
-  const creating = modal === 'create'
-  const uploading = modal === 'upload'
-  const importing = modal === 'import'
+  const modalOpen = modal === 'create' || modal === 'upload' || modal === 'import'
+  const initialMode = modal === 'upload' ? 'analyze' : modal === 'import' ? 'import' : 'build'
 
   function openModal(name: string) { router.push(`${pathname}?modal=${name}`) }
   function closeModal() { router.replace(pathname) }
-
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault()
-    if (!form.name.trim()) return
-    const res = await fetch('/api/ontologies', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-    const created = await res.json()
-    router.push(`/ontology/${created.id}`)
-  }
 
   async function handleDelete(id: string, e: React.MouseEvent) {
     e.stopPropagation()
@@ -358,87 +343,8 @@ export function OntologyHome({ initialOntologies }: Props) {
         )}
       </div>
 
-      {/* Upload Examples modal */}
-      {uploading && <UploadOntologyModal onClose={closeModal} />}
-
-      {/* Import Ontology modal */}
-      {importing && <ImportOntologyModal onClose={closeModal} />}
-
-      {/* Create modal */}
-      {creating && (
-        <div
-          className="fixed inset-0 flex items-center justify-center z-50"
-          style={{ background: 'rgba(15,23,42,0.5)' }}
-          onClick={e => e.target === e.currentTarget && closeModal()}
-        >
-          <div
-            className="rounded-xl p-8 w-full max-w-md animate-fade-in"
-            style={{ background: 'var(--surface2)', border: '1px solid var(--border2)' }}
-          >
-            <h2 className="font-display font-bold text-xl mb-6" style={{ color: 'var(--text)' }}>
-              New Ontology
-            </h2>
-            <form onSubmit={handleCreate} className="flex flex-col gap-4">
-              <div>
-                <label className="text-xs mb-1.5 block" style={{ color: 'var(--text-muted)' }}>Name *</label>
-                <input
-                  autoFocus
-                  value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g. Job Description Ontology"
-                  className="w-full px-3 py-2.5 rounded text-sm outline-none"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border2)', color: 'var(--text)' }}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border2)')}
-                />
-              </div>
-              <div>
-                <label className="text-xs mb-1.5 block" style={{ color: 'var(--text-muted)' }}>Domain</label>
-                <input
-                  value={form.domain}
-                  onChange={e => setForm(f => ({ ...f, domain: e.target.value }))}
-                  placeholder="e.g. hiring, finance, healthcare"
-                  className="w-full px-3 py-2.5 rounded text-sm outline-none"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border2)', color: 'var(--text)' }}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border2)')}
-                />
-              </div>
-              <div>
-                <label className="text-xs mb-1.5 block" style={{ color: 'var(--text-muted)' }}>Description</label>
-                <textarea
-                  value={form.description}
-                  onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  placeholder="What does this ontology model?"
-                  rows={3}
-                  className="w-full px-3 py-2.5 rounded text-sm outline-none resize-none"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border2)', color: 'var(--text)' }}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border2)')}
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="flex-1 py-2.5 rounded text-sm"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={!form.name.trim()}
-                  className="flex-1 py-2.5 rounded text-sm font-medium transition-opacity"
-                  style={{ background: 'var(--accent)', color: '#000', opacity: form.name.trim() ? 1 : 0.4 }}
-                >
-                  Create →
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Unified New Ontology modal */}
+      {modalOpen && <NewOntologyModal onClose={closeModal} initialMode={initialMode as 'build' | 'import' | 'analyze'} />}
     </div>
   )
 }

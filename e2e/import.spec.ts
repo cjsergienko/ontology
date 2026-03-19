@@ -11,10 +11,10 @@ const VALID_ONTOLOGY_JSON = JSON.stringify({
   edges: [],
 })
 
-// The capability tile heading that opens ImportOntologyModal
+// The capability tile heading that opens the unified modal on the Import tab
 const OPEN_IMPORT_MODAL_TILE = 'Upload Ontology'
-// The modal title
-const IMPORT_MODAL_TITLE = 'Upload Ontology File'
+// The modal title (unified NewOntologyModal)
+const IMPORT_MODAL_TITLE = 'New Ontology'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function login(page: any) {
@@ -46,22 +46,23 @@ test.afterEach(async ({ request }) => {
 test('import modal opens from home page', async ({ page }) => {
   await login(page)
   await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
-  await expect(page.getByText(IMPORT_MODAL_TITLE)).toBeVisible()
+  await expect(page.locator('.fixed.inset-0 h2')).toBeVisible()
 })
 
 test('import button is disabled with no file selected', async ({ page }) => {
   await login(page)
   await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
-  const importBtn = page.getByRole('button', { name: /import ontology/i })
+  const importBtn = page.getByRole('button', { name: /import →/i })
   await expect(importBtn).toBeDisabled()
 })
 
 test('cancel button closes the modal', async ({ page }) => {
   await login(page)
   await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
-  await expect(page.getByText(IMPORT_MODAL_TITLE)).toBeVisible()
+  const modalHeading = page.locator('.fixed.inset-0 h2')
+  await expect(modalHeading).toBeVisible()
   await page.getByRole('button', { name: /cancel/i }).click()
-  await expect(page.getByText(IMPORT_MODAL_TITLE)).not.toBeVisible()
+  await expect(modalHeading).not.toBeVisible()
 })
 
 
@@ -71,7 +72,7 @@ test('selecting a file shows filename and enables import button', async ({ page 
 
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.locator('input[type="file"]').evaluate((el: HTMLInputElement) => el.click()),
+    page.locator('input[type="file"]').first().evaluate((el: HTMLInputElement) => el.click()),
   ])
   await fileChooser.setFiles({
     name: 'test-ontology.json',
@@ -80,7 +81,7 @@ test('selecting a file shows filename and enables import button', async ({ page 
   })
 
   await expect(page.getByText('test-ontology.json')).toBeVisible()
-  await expect(page.getByRole('button', { name: /import ontology/i })).toBeEnabled()
+  await expect(page.getByRole('button', { name: /import →/i })).toBeEnabled()
 })
 
 test('clearing selected file disables import button', async ({ page }) => {
@@ -89,7 +90,7 @@ test('clearing selected file disables import button', async ({ page }) => {
 
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.locator('input[type="file"]').evaluate((el: HTMLInputElement) => el.click()),
+    page.locator('input[type="file"]').first().evaluate((el: HTMLInputElement) => el.click()),
   ])
   await fileChooser.setFiles({
     name: 'test-ontology.json',
@@ -99,7 +100,7 @@ test('clearing selected file disables import button', async ({ page }) => {
 
   // Clear button is inside the modal overlay (.fixed.inset-0), scoped to avoid home-page buttons
   await page.locator('.fixed.inset-0 button:has(svg[width="14"])').click()
-  await expect(page.getByRole('button', { name: /import ontology/i })).toBeDisabled()
+  await expect(page.getByRole('button', { name: /import →/i })).toBeDisabled()
 })
 
 // ─── JSON fast path (no Claude) ─────────────────────────────────────────────
@@ -110,7 +111,7 @@ test('importing valid JSON ontology redirects to editor', async ({ page }) => {
 
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.locator('input[type="file"]').evaluate((el: HTMLInputElement) => el.click()),
+    page.locator('input[type="file"]').first().evaluate((el: HTMLInputElement) => el.click()),
   ])
   await fileChooser.setFiles({
     name: 'e2e-ontology.json',
@@ -118,7 +119,7 @@ test('importing valid JSON ontology redirects to editor', async ({ page }) => {
     buffer: Buffer.from(VALID_ONTOLOGY_JSON),
   })
 
-  await page.getByRole('button', { name: /import ontology/i }).click()
+  await page.getByRole('button', { name: /import →/i }).click()
 
   // Should navigate to the ontology editor page
   await expect(page).toHaveURL(/\/ontology\/[a-f0-9-]+/, { timeout: 10_000 })
@@ -130,7 +131,7 @@ test('importing valid JSON ontology shows its name in the editor', async ({ page
 
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.locator('input[type="file"]').evaluate((el: HTMLInputElement) => el.click()),
+    page.locator('input[type="file"]').first().evaluate((el: HTMLInputElement) => el.click()),
   ])
   await fileChooser.setFiles({
     name: 'e2e-named.json',
@@ -138,7 +139,7 @@ test('importing valid JSON ontology shows its name in the editor', async ({ page
     buffer: Buffer.from(VALID_ONTOLOGY_JSON),
   })
 
-  await page.getByRole('button', { name: /import ontology/i }).click()
+  await page.getByRole('button', { name: /import →/i }).click()
   await expect(page).toHaveURL(/\/ontology\/[a-f0-9-]+/, { timeout: 10_000 })
 
   // Ontology name should appear somewhere on the editor page
