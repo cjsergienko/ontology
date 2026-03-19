@@ -5,13 +5,12 @@ import { usePathname } from 'next/navigation'
 export function SiteFooter() {
   const pathname = usePathname()
   const isLanding = pathname === '/'
-  const isDashboard = pathname === '/dashboard'
 
   return (
     <footer style={{
       background: '#070b14',
       borderTop: isLanding ? '1px solid rgba(99,102,241,0.1)' : '1px solid #1e2130',
-      padding: isLanding ? '40px 40px' : isDashboard ? '0 12px' : '14px 12px',
+      padding: isLanding ? '40px 40px' : '14px 12px',
       flexShrink: 0,
       fontFamily: "'JetBrains Mono', monospace",
     }}>
