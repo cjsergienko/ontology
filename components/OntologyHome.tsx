@@ -188,7 +188,7 @@ export function OntologyHome({ initialOntologies }: Props) {
       </header>
 
       {/* Body */}
-      <div className="py-6" style={{ paddingLeft: 40, paddingRight: 40 }}>
+      <div style={{ padding: '24px 40px 40px' }}>
         {/* Capability tiles */}
         <div style={{ marginBottom: 36 }}>
           <CapabilityTiles onAction={openModal} />
