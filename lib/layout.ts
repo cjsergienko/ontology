@@ -5,7 +5,7 @@ import type { OntologyNode } from './types'
 
 const NODE_WIDTH = 200
 const NODE_HEIGHT = 60
-const COLLISION_RADIUS = Math.sqrt(NODE_WIDTH ** 2 + NODE_HEIGHT ** 2) / 2 + 20
+const COLLISION_RADIUS = Math.sqrt(NODE_WIDTH ** 2 + NODE_HEIGHT ** 2) / 2 + 60
 
 export type LayoutKind = 'force' | 'spring' | 'forceatlas2' | 'tree-tb' | 'tree-lr' | 'circular'
 
@@ -56,8 +56,8 @@ function forceLayout(nodes: Node[], edges: Edge[]): Node[] {
   const simLinks = validEdges(nodes, edges).map(e => ({ source: e.source, target: e.target }))
 
   forceSimulation(simNodes as never)
-    .force('link', forceLink(simLinks as never).id((d: unknown) => (d as SimNode).id).distance(180).strength(0.5))
-    .force('charge', forceManyBody().strength(-600))
+    .force('link', forceLink(simLinks as never).id((d: unknown) => (d as SimNode).id).distance(320).strength(0.4))
+    .force('charge', forceManyBody().strength(-1200))
     .force('center', forceCenter(0, 0))
     .force('collide', forceCollide(COLLISION_RADIUS))
     .stop().tick(300)
@@ -72,7 +72,7 @@ function forceLayout(nodes: Node[], edges: Edge[]): Node[] {
 
 function springLayout(nodes: Node[], edges: Edge[], iterations = 100): Node[] {
   const n = nodes.length
-  const k = Math.sqrt((1200 * 1200) / n)   // optimal pairwise distance
+  const k = Math.sqrt((2400 * 2400) / n)   // optimal pairwise distance
 
   // Seed positions on a circle so the algorithm starts spread out
   const pos = new Map<string, { x: number; y: number }>()
@@ -160,7 +160,7 @@ function forceAtlas2Layout(
   const swg = new Map<string, number>()
   nodes.forEach((node, i) => {
     const a = (2 * Math.PI * i) / n
-    const r = 200
+    const r = 400
     pos.set(node.id, { x: r * Math.cos(a), y: r * Math.sin(a) })
     vel.set(node.id, { x: 0, y: 0 })
     swg.set(node.id, 0)
@@ -244,7 +244,7 @@ function forceAtlas2Layout(
 function dagreLayout(nodes: Node[], edges: Edge[], direction: 'TB' | 'LR'): Node[] {
   const g = new dagre.graphlib.Graph()
   g.setDefaultEdgeLabel(() => ({}))
-  g.setGraph({ rankdir: direction, nodesep: 60, ranksep: 100, marginx: 40, marginy: 40 })
+  g.setGraph({ rankdir: direction, nodesep: 120, ranksep: 220, marginx: 80, marginy: 80 })
   for (const n of nodes) g.setNode(n.id, { width: NODE_WIDTH, height: NODE_HEIGHT })
   for (const e of edges) g.setEdge(e.source, e.target)
   dagre.layout(g)
@@ -269,7 +269,7 @@ function circularLayout(nodes: Node[], _edges: Edge[]): Node[] {
   }
   const result: Node[] = []
   for (const [ring, rNodes] of [...rings.entries()].sort(([a], [b]) => a - b)) {
-    const r = Math.max(220 + ring * 200, (rNodes.length * 260) / (2 * Math.PI))
+    const r = Math.max(320 + ring * 320, (rNodes.length * 320) / (2 * Math.PI))
     const step = (2 * Math.PI) / rNodes.length
     rNodes.forEach((n, i) => {
       const a = step * i + ring * 0.3
