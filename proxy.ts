@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 function isPublic(pathname: string): boolean {
   if (pathname === '/' || pathname === '/login') return true
   if (pathname.startsWith('/api/auth')) return true
+  if (pathname === '/api/stripe/webhook') return true
   return false
 }
 
