@@ -103,17 +103,17 @@ function fileToContentBlock(name: string, mime: string, bytes: ArrayBuffer, inde
 }
 
 export async function POST(req: Request) {
-  const { auth } = await import('@/auth')
-  const { getOrCreateUser, canAnalyze, incrementAnalyzeCount } = await import('@/lib/users')
+  const { getSessionUser } = await import('@/lib/authHelper')
+  const { getUserByEmail, canAnalyze, incrementAnalyzeCount } = await import('@/lib/users')
 
-  const session = await auth()
-  if (!session?.user?.email) {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { user } = getOrCreateUser(session.user.email, session.user.name ?? '')
+  const user = getUserByEmail(sessionUser.email)!
 
-  if (!canAnalyze(session.user.email)) {
+  if (!canAnalyze(sessionUser.email)) {
     const { getPlanLimits } = await import('@/lib/plans')
     const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
     return NextResponse.json(
@@ -187,7 +187,7 @@ export async function POST(req: Request) {
     }
 
     saveOntology(ontology, user.id)
-    incrementAnalyzeCount(session.user!.email!)
+    incrementAnalyzeCount(sessionUser.email)
     return ontology
   })
 }

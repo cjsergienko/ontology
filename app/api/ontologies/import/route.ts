@@ -74,17 +74,17 @@ function buildOntology(parsed: { name?: string; description?: string; domain?: s
 }
 
 export async function POST(req: Request) {
-  const { auth } = await import('@/auth')
-  const { getOrCreateUser, canImport, incrementImportCount } = await import('@/lib/users')
+  const { getSessionUser } = await import('@/lib/authHelper')
+  const { getUserByEmail, canImport, incrementImportCount } = await import('@/lib/users')
 
-  const session = await auth()
-  if (!session?.user?.email) {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { user } = getOrCreateUser(session.user.email, session.user.name ?? '')
+  const user = getUserByEmail(sessionUser.email)!
 
-  if (!canImport(session.user.email)) {
+  if (!canImport(sessionUser.email)) {
     const { getPlanLimits } = await import('@/lib/plans')
     const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
     return NextResponse.json(
@@ -108,7 +108,7 @@ export async function POST(req: Request) {
       if (parsed.nodes && parsed.edges && parsed.name) {
         const ontology = buildOntology(parsed, file.name)
         saveOntology(ontology, user.id)
-        incrementImportCount(session.user!.email!)
+        incrementImportCount(sessionUser.email)
         return NextResponse.json(ontology)
       }
     } catch { /* not valid JSON or wrong shape — fall through to Claude */ }
@@ -199,7 +199,7 @@ export async function POST(req: Request) {
 
     const ontology = buildOntology(parsed, file.name)
     saveOntology(ontology, user.id)
-    incrementImportCount(session.user!.email!)
+    incrementImportCount(sessionUser.email)
     return ontology
   })
 }

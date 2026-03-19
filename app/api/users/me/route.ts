@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/auth'
-import { getOrCreateUser, countUserOntologies } from '@/lib/users'
+import { getSessionUser } from '@/lib/authHelper'
+import { getUserByEmail, countUserOntologies } from '@/lib/users'
 import { getPlanLimits } from '@/lib/plans'
 
 export async function GET() {
-  const session = await auth()
-  if (!session?.user?.email) {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { user } = getOrCreateUser(session.user.email, session.user.name ?? '')
+  const user = getUserByEmail(sessionUser.email)!
   const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
   const ontologyCount = countUserOntologies(user.id)
 

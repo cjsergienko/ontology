@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { listOntologies, saveOntology } from '@/lib/storage'
-import { auth } from '@/auth'
-import { getOrCreateUser, countUserOntologies } from '@/lib/users'
+import { getSessionUser } from '@/lib/authHelper'
+import { countUserOntologies } from '@/lib/users'
 import { getPlanLimits } from '@/lib/plans'
 import type { Ontology } from '@/lib/types'
 
@@ -11,12 +11,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session?.user?.email) {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { user } = getOrCreateUser(session.user.email, session.user.name ?? '')
+  const { getUserByEmail } = await import('@/lib/users')
+  const user = getUserByEmail(sessionUser.email)!
   const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
 
   if (limits.ontologies !== -1) {
