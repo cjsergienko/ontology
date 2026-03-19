@@ -420,10 +420,10 @@ function OntologyEditorInner({ initialOntology }: Props) {
           <div className="relative">
             <button
               onClick={() => setDownloadOpen(o => !o)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition-all"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all"
+              style={{ background: 'var(--accent)', border: '1px solid var(--accent)', color: '#000' }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
             >
               <DownloadIcon size={11} />
               Download
