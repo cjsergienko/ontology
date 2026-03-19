@@ -23,6 +23,11 @@ export async function getSessionUser(): Promise<{ email: string; name: string; u
     const jar = await cookies()
     if (jar.get('ontology_test_session')?.value === '1') {
       const { user } = getOrCreateUser(TEST_EMAIL, TEST_NAME)
+      // Ensure test user has pro plan so import/analyze limits don't block tests
+      if (user.plan === 'free') {
+        const { getDb } = await import('@/lib/db')
+        getDb().prepare(`UPDATE users SET plan = 'pro' WHERE email = ?`).run(TEST_EMAIL)
+      }
       return { email: user.email, name: user.name, userId: user.id }
     }
   }
