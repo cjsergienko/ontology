@@ -15,8 +15,8 @@ export function SiteFooter() {
       fontFamily: "'JetBrains Mono', monospace",
     }}>
       <div style={{
-        maxWidth: 1200,
-        margin: '0 auto',
+        maxWidth: isLanding ? 1200 : 'none',
+        margin: isLanding ? '0 auto' : 0,
       }}>
         {isLanding ? (
           <div style={{
