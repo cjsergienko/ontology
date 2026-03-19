@@ -366,7 +366,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
       {/* Header */}
       <header
         className="flex items-center justify-between shrink-0"
-        style={{ borderBottom: '1px solid var(--border)', padding: '0 40px', height: 56 }}
+        style={{ borderBottom: '1px solid var(--border)', padding: '0 12px', height: 56 }}
       >
         <div className="flex items-center gap-4">
           <Link
