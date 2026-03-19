@@ -275,7 +275,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
     <div className="h-full flex flex-col" style={{ background: 'var(--bg)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 24px rgba(0,0,0,0.08)' }}>
       {/* Header */}
       <header
-        className="flex items-center justify-between px-5 py-3 shrink-0"
+        className="flex items-center justify-between px-10 py-3 shrink-0"
         style={{ borderBottom: '1px solid var(--border)' }}
       >
         <div className="flex items-center gap-4">
