@@ -104,29 +104,9 @@ export function SiteHeader() {
         </nav>
       )}
 
-      {/* App nav — back to home + sign out */}
+      {/* App nav — sign out only */}
       {isApp && (
         <nav style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <a
-            href="/"
-            style={{
-              fontSize: 12,
-              color: '#475569',
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              fontFamily: "'JetBrains Mono', monospace",
-              transition: 'color 0.15s',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M9.5 6h-7M6 2.5L2.5 6 6 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            ontology.live
-          </a>
           <SignOutButton />
         </nav>
       )}

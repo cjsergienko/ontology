@@ -6,6 +6,7 @@ import type { Ontology } from '@/lib/types'
 import { PlusIcon, BoxIcon, NetworkIcon, TrashIcon, ArrowRightIcon, UploadIcon, FileJsonIcon } from 'lucide-react'
 import { UploadOntologyModal } from './UploadOntologyModal'
 import { ImportOntologyModal } from './ImportOntologyModal'
+import { CapabilityTiles } from './CapabilityTiles'
 
 interface Props {
   initialOntologies: Omit<Ontology, 'nodes' | 'edges'>[]
@@ -128,7 +129,12 @@ export function OntologyHome({ initialOntologies }: Props) {
       </header>
 
       {/* Body */}
-      <div className="flex-1 overflow-auto px-8 py-8">
+      <div className="flex-1 overflow-auto px-8 py-6">
+        {/* Capability tiles */}
+        <div style={{ marginBottom: 36 }}>
+          <CapabilityTiles onAction={openModal} />
+        </div>
+
         {ontologies.length === 0 && !creating ? (
           <div className="h-full flex flex-col items-center justify-center gap-6">
             <div style={{ color: 'var(--text-dim)' }}>

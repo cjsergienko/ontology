@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
+import { CapabilityTiles } from './CapabilityTiles'
 
 const FEATURES = [
   {
@@ -569,6 +570,38 @@ export function LandingPage() {
               background: 'rgba(99,102,241,0.05)',
             }}>{d}</span>
           ))}
+        </div>
+      </section>
+
+      {/* ── FOUR WAYS TO WORK ────────────────────────────────────── */}
+      <section style={{
+        padding: '80px 40px 70px',
+        borderTop: '1px solid rgba(99,102,241,0.08)',
+        background: 'rgba(8,11,22,0.6)',
+      }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 52 }}>
+            <div style={{
+              display: 'inline-block',
+              fontSize: 11, color: '#6366f1', letterSpacing: '0.15em',
+              marginBottom: 16, textTransform: 'uppercase' as const,
+            }}>
+              Four ways to work
+            </div>
+            <h2 style={{
+              fontFamily: "'Syne', sans-serif",
+              fontWeight: 800,
+              fontSize: 'clamp(24px, 2.8vw, 36px)',
+              color: '#f1f5f9',
+              margin: 0,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2,
+            }}>
+              Every path leads to a<br/>
+              <span style={{ color: '#6366f1' }}>precise ontology</span>
+            </h2>
+          </div>
+          <CapabilityTiles />
         </div>
       </section>
 
