@@ -356,7 +356,7 @@ export function NewOntologyModal({ onClose }: Props) {
               </div>
               {loading && (
                 <p className="text-center text-xs" style={{ color: 'var(--text-dim)' }}>
-                  Claude is parsing your ontology and converting it to the knowledge graph format…
+                  Parsing your ontology and converting it to the knowledge graph format…
                 </p>
               )}
             </>
@@ -444,7 +444,7 @@ export function NewOntologyModal({ onClose }: Props) {
 
               {loading && (
                 <p className="text-center text-xs" style={{ color: 'var(--text-dim)' }}>
-                  Claude is analyzing your documents and extracting the ontology structure…
+                  Analyzing your documents and extracting the ontology structure…
                 </p>
               )}
             </>
