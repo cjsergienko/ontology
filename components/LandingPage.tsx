@@ -150,116 +150,6 @@ const PRICING = [
   },
 ]
 
-// The "Custom" card — Sergei S.
-function CustomCard() {
-  return (
-    <div style={{
-      background: '#0d1224',
-      border: '1px solid rgba(245,158,11,0.3)',
-      borderRadius: 16,
-      padding: '32px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '20px',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* warm glow top-right */}
-      <div style={{
-        position: 'absolute', top: -40, right: -40,
-        width: 160, height: 160,
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }}/>
-      {/* Avatar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{
-          width: 52, height: 52, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 20, fontWeight: 700, color: '#fff',
-          fontFamily: "'Syne', sans-serif",
-          flexShrink: 0,
-        }}>
-          S
-        </div>
-        <div>
-          <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 16, color: '#f1f5f9' }}>
-            Sergei S.
-          </div>
-          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>Senior Ontology Consultant</div>
-        </div>
-      </div>
-
-      {/* Price */}
-      <div>
-        <div style={{ fontSize: 11, color: '#64748b', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
-          Custom
-        </div>
-        <div style={{
-          fontFamily: "'Syne', sans-serif",
-          fontWeight: 800,
-          fontSize: 28,
-          color: '#f1f5f9',
-        }}>
-          All Covered
-        </div>
-        <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>
-          We handle everything for you
-        </div>
-      </div>
-
-      {/* Features */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
-        {[
-          'Dedicated human consultant',
-          'Active ontology sourcing',
-          'Manual design & architecture',
-          'Weekly progress reports',
-          'Everything in Pro',
-        ].map(f => (
-          <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 18, height: 18, borderRadius: '50%',
-              background: 'rgba(245,158,11,0.15)',
-              border: '1px solid rgba(245,158,11,0.4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-                <path d="M1.5 4.5l2.5 2.5 3.5-4" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span style={{ fontSize: 13, color: '#cbd5e1' }}>{f}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* CTA */}
-      <a
-        href="mailto:contact@ontology.live"
-        style={{
-          display: 'block',
-          textAlign: 'center',
-          padding: '13px 0',
-          borderRadius: 9999,
-          background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-          color: '#fff',
-          fontFamily: "'Syne', sans-serif",
-          fontWeight: 700,
-          fontSize: 14,
-          textDecoration: 'none',
-          transition: 'opacity 0.2s',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-      >
-        Let's talk!
-      </a>
-    </div>
-  )
-}
 
 // Animated hero graph
 function HeroGraph() {
@@ -853,8 +743,6 @@ export function LandingPage() {
               </div>
             ))}
 
-            {/* Custom / Sergei S. card */}
-            <CustomCard />
           </div>
         </div>
       </section>
@@ -879,7 +767,7 @@ export function LandingPage() {
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(99,102,241,0.12)' }}>
                   <th style={{ textAlign: 'left', padding: '18px 24px', color: '#475569', fontWeight: 500 }}>Feature</th>
-                  {['Free', 'Starter', 'Pro', 'Business', 'Custom'].map(p => (
+                  {['Free', 'Starter', 'Pro', 'Business'].map(p => (
                     <th key={p} style={{
                       padding: '18px 24px', color: p === 'Pro' ? '#a5b4fc' : '#64748b',
                       fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 13,
@@ -890,13 +778,12 @@ export function LandingPage() {
               </thead>
               <tbody>
                 {[
-                  ['Ontologies', '2', '10', 'Unlimited', 'Unlimited', 'Unlimited'],
-                  ['Nodes per ontology', '50', '500', 'Unlimited', 'Unlimited', 'Unlimited'],
-                  ['AI imports/month', '—', '10', '100', 'Unlimited', 'Unlimited'],
-                  ['AI analyses/month', '—', '—', '20', 'Unlimited', 'Unlimited'],
-                  ['YAML export', '—', '✓', '✓', '✓', '✓'],
-                  ['API access', '—', '—', '✓', '✓', '✓'],
-                  ['Dedicated consultant', '—', '—', '—', '—', '✓'],
+                  ['Ontologies', '2', '10', 'Unlimited', 'Unlimited'],
+                  ['Nodes per ontology', '50', '500', 'Unlimited', 'Unlimited'],
+                  ['AI imports/month', '—', '10', '100', 'Unlimited'],
+                  ['AI analyses/month', '—', '—', '20', 'Unlimited'],
+                  ['YAML export', '—', '✓', '✓', '✓'],
+                  ['API access', '—', '—', '✓', '✓'],
                 ].map(([label, ...vals], i) => (
                   <tr key={label} style={{
                     borderBottom: '1px solid rgba(99,102,241,0.06)',
