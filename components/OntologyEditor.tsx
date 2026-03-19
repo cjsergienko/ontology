@@ -409,9 +409,10 @@ function OntologyEditorInner({ initialOntology }: Props) {
             onClick={save}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all"
             style={{
-              background: saved ? '#10b981' : saving ? 'var(--surface2)' : 'var(--accent)',
-              color: saved || saving ? 'var(--text)' : '#000',
-              opacity: saving ? 0.7 : 1,
+              background: saved ? 'rgba(16,185,129,0.15)' : 'var(--accent-dim)',
+              border: `1px solid ${saved ? '#10b981' : 'var(--accent)'}`,
+              color: saved ? '#10b981' : 'var(--accent)',
+              opacity: saving ? 0.6 : 1,
             }}
           >
             <SaveIcon size={11} />
