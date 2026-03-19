@@ -47,11 +47,19 @@ interface SimNode { id: string; x: number; y: number; fx?: number | null; fy?: n
 
 function forceLayout(nodes: Node[], edges: Edge[]): Node[] {
   const mainId = highestDegree(nodes, edges)
-  const simNodes: SimNode[] = nodes.map(n => ({
-    id: n.id, x: 0, y: 0,
-    fx: n.id === mainId ? 0 : null,
-    fy: n.id === mainId ? 0 : null,
-  }))
+  // Seed on phyllotaxis spiral — avoids all-at-origin repulsion blowup
+  const radius = 10 * Math.sqrt(nodes.length)
+  const simNodes: SimNode[] = nodes.map((n, i) => {
+    const a = i * 2.3998 // golden angle in radians
+    const r = radius * Math.sqrt((i + 1) / nodes.length)
+    return {
+      id: n.id,
+      x: n.id === mainId ? 0 : r * Math.cos(a),
+      y: n.id === mainId ? 0 : r * Math.sin(a),
+      fx: n.id === mainId ? 0 : null,
+      fy: n.id === mainId ? 0 : null,
+    }
+  })
   const simLinks = validEdges(nodes, edges).map(e => ({ source: e.source, target: e.target }))
 
   forceSimulation(simNodes as never)
