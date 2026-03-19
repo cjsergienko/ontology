@@ -132,7 +132,6 @@ export function OntologyHome({ initialOntologies }: Props) {
 
   const modal = searchParams.get('modal')
   const modalOpen = modal === 'create' || modal === 'upload' || modal === 'import'
-  const initialMode = modal === 'upload' ? 'analyze' : modal === 'import' ? 'import' : 'build'
 
   function openModal(name: string) { router.push(`${pathname}?modal=${name}`) }
   function closeModal() { router.replace(pathname) }
@@ -344,7 +343,7 @@ export function OntologyHome({ initialOntologies }: Props) {
       </div>
 
       {/* Unified New Ontology modal */}
-      {modalOpen && <NewOntologyModal onClose={closeModal} initialMode={initialMode as 'build' | 'import' | 'analyze'} />}
+      {modalOpen && <NewOntologyModal onClose={closeModal} />}
     </div>
   )
 }

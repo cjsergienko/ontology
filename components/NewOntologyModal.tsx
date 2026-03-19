@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
   XIcon, FileIcon, FileTextIcon, ImageIcon, AlertCircleIcon,
   PlusIcon, PencilIcon, UploadIcon, FilesIcon,
@@ -9,7 +9,6 @@ import {
 
 interface Props {
   onClose: () => void
-  initialMode?: Mode
 }
 
 type Mode = 'build' | 'import' | 'analyze'
@@ -43,9 +42,26 @@ const TABS: { id: Mode; label: string; icon: React.ReactNode; desc: string }[] =
   { id: 'analyze', label: 'Learn from Documents',   icon: <FilesIcon size={13} />,   desc: 'Upload multiple files' },
 ]
 
-export function NewOntologyModal({ onClose, initialMode = 'build' }: Props) {
+const MODAL_TO_MODE: Record<string, Mode> = {
+  create: 'build',
+  import: 'import',
+  upload: 'analyze',
+}
+const MODE_TO_MODAL: Record<Mode, string> = {
+  build: 'create',
+  import: 'import',
+  analyze: 'upload',
+}
+
+export function NewOntologyModal({ onClose }: Props) {
   const router = useRouter()
-  const [mode, setMode] = useState<Mode>(initialMode)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const mode: Mode = MODAL_TO_MODE[searchParams.get('modal') ?? ''] ?? 'build'
+
+  function setMode(m: Mode) {
+    router.push(`${pathname}?modal=${MODE_TO_MODAL[m]}`)
+  }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
