@@ -23,6 +23,24 @@ async function login(page: any) {
   await expect(page).toHaveURL('/dashboard')
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function deleteTestOntologies(request: any) {
+  await request.post('/api/auth/test')
+  const res = await request.get('/api/ontologies')
+  const ontologies = await res.json()
+  for (const o of ontologies) {
+    if (o.domain === 'testing') {
+      await request.delete(`/api/ontologies/${o.id}`)
+    }
+  }
+}
+
+// ─── Cleanup ─────────────────────────────────────────────────────────────────
+
+test.afterEach(async ({ request }) => {
+  await deleteTestOntologies(request)
+})
+
 // ─── Modal UI ───────────────────────────────────────────────────────────────
 
 test('import modal opens from home page', async ({ page }) => {
