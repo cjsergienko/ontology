@@ -37,21 +37,6 @@ body {
   min-height: 100vh;
 }
 
-body::before {
-  content: "";
-  opacity: 0;
-  pointer-events: none;
-  z-index: -1;
-  background: radial-gradient(140% 140% at 100% 0, #fbca64 0%, #f05ba4 50%, #f99d86 84%);
-  animation: 12s ease-in-out infinite gradient-shift;
-  position: fixed;
-  inset: 0;
-}
-
-@keyframes gradient-shift {
-  0%, 100% { opacity: 0; }
-  50%       { opacity: 1; }
-}
 
 body > main {
   flex: 1;
