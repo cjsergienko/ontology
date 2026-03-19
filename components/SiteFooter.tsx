@@ -72,10 +72,10 @@ export function SiteFooter() {
               </div>
               <div>
                 <div style={{ fontSize: 11, color: '#6366f1', letterSpacing: '0.1em', marginBottom: 12 }}>CONTACT</div>
-                <a href="mailto:contact@pivotsglobal.com" style={{
+                <a href="mailto:contact@ontology.live" style={{
                   display: 'block', fontSize: 13, color: '#475569', textDecoration: 'none',
                   marginBottom: 8,
-                }}>contact@pivotsglobal.com</a>
+                }}>contact@ontology.live</a>
               </div>
             </div>
           </div>
@@ -91,7 +91,7 @@ export function SiteFooter() {
         }}>
           {isLanding ? (
             <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
-              © 2026 ontology.live
+              © 2026 Pivots Global LLC. All rights reserved.
             </p>
           ) : (
             <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
@@ -112,7 +112,7 @@ export function SiteFooter() {
             </a>
           )}
           <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
-            {!isLanding && '© 2026 ontology.live — Visual ontology & knowledge graph designer'}
+            {!isLanding && '© 2026 Pivots Global LLC. All rights reserved.'}
           </p>
         </div>
       </div>
