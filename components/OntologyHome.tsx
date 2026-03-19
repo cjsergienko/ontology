@@ -170,7 +170,7 @@ export function OntologyHome({ initialOntologies }: Props) {
   const COLS = '72px 1fr 96px 80px 80px 64px 64px 96px 36px'
 
   return (
-    <div className="dashboard-page flex flex-col" style={{ background: 'var(--bg)', minHeight: '100%' }}>
+    <div className="dashboard-page flex flex-col" style={{ background: 'var(--bg)' }}>
       {/* Header */}
       <header style={{ borderBottom: '1px solid var(--border)', padding: '14px 40px' }} className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
