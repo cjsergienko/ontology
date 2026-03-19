@@ -6,7 +6,8 @@ import { getPlanLimits } from '@/lib/plans'
 import type { Ontology } from '@/lib/types'
 
 export async function GET() {
-  const ontologies = listOntologies()
+  const sessionUser = await getSessionUser()
+  const ontologies = listOntologies(sessionUser?.userId)
   return NextResponse.json(ontologies)
 }
 

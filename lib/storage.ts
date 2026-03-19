@@ -17,11 +17,12 @@ export interface OntologyListItem {
   thumbnailEdges: [number, number][]
 }
 
-export function listOntologies(): OntologyListItem[] {
+export function listOntologies(userId?: string): OntologyListItem[] {
   const db = getDb()
-  const rows = db.prepare(
-    'SELECT id, name, description, domain, nodes, edges, created_at, updated_at FROM ontologies ORDER BY updated_at DESC'
-  ).all() as {
+  const sql = userId
+    ? 'SELECT id, name, description, domain, nodes, edges, created_at, updated_at FROM ontologies WHERE user_id = ? ORDER BY updated_at DESC'
+    : 'SELECT id, name, description, domain, nodes, edges, created_at, updated_at FROM ontologies ORDER BY updated_at DESC'
+  const rows = db.prepare(sql).all(...(userId ? [userId] : [])) as {
     id: string; name: string; description: string; domain: string;
     nodes: string; edges: string; created_at: string; updated_at: string
   }[]

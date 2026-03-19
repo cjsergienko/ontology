@@ -1,5 +1,5 @@
 import { getDb } from './db'
-import { getPlanLimits, type Plan } from './plans'
+import { getPlanLimits, DEMO_ONTOLOGY_ID, type Plan } from './plans'
 import { randomUUID } from 'crypto'
 
 export interface DbUser {
@@ -106,4 +106,18 @@ export function countUserOntologies(userId: string): number {
     .prepare('SELECT COUNT(*) as cnt FROM ontologies WHERE user_id = ?')
     .get(userId) as { cnt: number }
   return row.cnt
+}
+
+/** Copy the demo ontology for a newly registered user so their dashboard isn't empty. */
+export function seedDemoOntology(userId: string): void {
+  const db = getDb()
+  const demo = db.prepare('SELECT * FROM ontologies WHERE id = ?').get(DEMO_ONTOLOGY_ID) as {
+    name: string; description: string; domain: string; nodes: string; edges: string
+  } | undefined
+  if (!demo) return
+  const now = new Date().toISOString()
+  db.prepare(`
+    INSERT INTO ontologies (id, user_id, name, description, domain, nodes, edges, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(randomUUID(), userId, demo.name, demo.description, demo.domain, demo.nodes, demo.edges, now, now)
 }

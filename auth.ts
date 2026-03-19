@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
-import { getOrCreateUser } from './lib/users'
+import { getOrCreateUser, seedDemoOntology } from './lib/users'
 import { sendRegistrationEmail } from './lib/notify'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -13,8 +13,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ user }) {
       if (!user.email) return false
-      const isNew = await getOrCreateUser(user.email, user.name ?? '')
+      const { user: dbUser, isNew } = getOrCreateUser(user.email, user.name ?? '')
       if (isNew) {
+        seedDemoOntology(dbUser.id)
         await sendRegistrationEmail(user.email, user.name ?? '')
       }
       return true
