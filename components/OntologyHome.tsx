@@ -170,7 +170,7 @@ export function OntologyHome({ initialOntologies }: Props) {
   return (
     <div className="h-full flex flex-col" style={{ background: 'var(--bg)', overflow: 'hidden' }}>
       {/* Header */}
-      <header style={{ borderBottom: '1px solid var(--border)', padding: '0 40px', height: 56 }} className="flex items-center justify-between shrink-0">
+      <header style={{ borderBottom: '1px solid var(--border)', padding: '14px 40px' }} className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
           <div className="relative">
             <NetworkIcon size={22} style={{ color: 'var(--accent)' }} />
