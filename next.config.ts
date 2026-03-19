@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     "www.ontology.live",
   ],
   output: 'standalone',
+  devIndicators: false,
 };
 
 export default nextConfig;
