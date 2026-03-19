@@ -536,7 +536,7 @@ export function LandingPage() {
                 pointerEvents: 'none',
               }}/>
               <div style={{
-                fontSize: 10, color: '#475569', letterSpacing: '0.1em',
+                fontSize: 13, color: '#94a3b8', letterSpacing: '0.05em',
                 marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8,
               }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }}/>
