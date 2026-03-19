@@ -29,7 +29,7 @@ export function SiteHeader() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 40px',
+      padding: pathname.startsWith('/ontology') ? '0 14px' : '0 40px',
       height: '56px',
       flexShrink: 0,
       zIndex: 100,
