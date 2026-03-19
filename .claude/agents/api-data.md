@@ -14,10 +14,13 @@ tools: Read, Edit, Write, Glob, Grep, Bash
 ## API routes
 | Route | Methods | Purpose |
 |-------|---------|---------|
-| `app/api/ontologies/route.ts` | GET, POST | List all / create ontology |
+| `app/api/ontologies/route.ts` | GET, POST | List user's own / create ontology |
 | `app/api/ontologies/[id]/route.ts` | GET, PUT, DELETE | Get / update / delete one |
 | `app/api/ontologies/import/route.ts` | POST | Parse YAML/JSON/Markdown file → ontology |
 | `app/api/ontologies/upload/route.ts` | POST | Analyze multiple docs → generate ontology |
+| `app/api/stripe/checkout/route.ts` | POST | Create Stripe Checkout session |
+| `app/api/stripe/webhook/route.ts` | POST | Handle Stripe subscription events |
+| `app/api/users/me/route.ts` | GET | Current user plan + usage |
 | `app/api/auth/` | — | Auth endpoints (Google OAuth via `auth.ts`) |
 
 ## Import endpoint (`/api/ontologies/import`)
@@ -81,8 +84,28 @@ interface Ontology {
 | relation | `#ef4444` red |
 | constraint | `#64748b` slate |
 
-## Auth
+## Auth & users
 - Google OAuth via NextAuth — configured in `auth.ts`
+- Open to all Google accounts (no allowlist)
 - All `/api/ontologies/*` routes require a valid session
-- Dev bypass: `POST /api/auth/test` sets a test session cookie (used by e2e tests)
-- Middleware enforces auth on `/dashboard` and `/ontology/*` routes
+- Auth helper: `lib/authHelper.ts` — `getSessionUser()` — accepts both NextAuth session and dev test cookie
+- Dev bypass: `POST /api/auth/test` sets `ontology_test_session=1` cookie (used by e2e tests only)
+- On first sign-in: user row created in `users` table + demo ontology copied + registration email sent
+
+## Users & plans (`lib/users.ts`, `lib/plans.ts`)
+- Plans: `free` (2 ontologies, no import/analyze) · `starter` €29 · `pro` €149 · `business` €499
+- `lib/plans.ts` — `PLAN_LIMITS` map, `DEMO_ONTOLOGY_ID`
+- `lib/users.ts` — `getOrCreateUser`, `canImport`, `canAnalyze`, `incrementImportCount`, `incrementAnalyzeCount`, `updateUserPlan`, `countUserOntologies`, `seedDemoOntology`
+- Plan limits enforced server-side in all POST routes (returns 403 with upgrade message)
+- Stripe webhook (`we_1TCZCYRsL5RwihXR5VnQM3yF`) updates user plan on `checkout.session.completed`
+
+## Notifications (`lib/notify.ts`)
+- `sendRegistrationEmail` — fires on new user first sign-in
+- Uses Resend SMTP (`smtp.resend.com:465`) when `RESEND_API_KEY` is set in `.env.local`
+- Falls back to generic SMTP (`SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`) or local sendmail
+- From: `contact@ontology.live` · To: `NOTIFY_EMAIL` (default `ssergienko@pivotsdoo.com`)
+
+## Ontologies are user-scoped
+- `listOntologies(userId?)` filters by `user_id` — users see only their own
+- `saveOntology(ontology, userId?)` records owner on create/import/analyze
+- `/ontology/[id]` page: unauthenticated users can only view `DEMO_ONTOLOGY_ID` (read-only)
