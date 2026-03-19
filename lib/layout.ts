@@ -10,8 +10,8 @@ const COLLISION_RADIUS = Math.sqrt(NODE_WIDTH ** 2 + NODE_HEIGHT ** 2) / 2 + 60
 export type LayoutKind = 'force' | 'spring' | 'tree-tb' | 'tree-lr' | 'circular'
 
 export const LAYOUT_OPTIONS: { kind: LayoutKind; label: string; description: string }[] = [
-  { kind: 'force',   label: 'Force',   description: 'd3-force physics — main entity pinned at center' },
   { kind: 'spring',  label: 'Spring',  description: 'Fruchterman-Reingold — balanced edge lengths' },
+  { kind: 'force',   label: 'Force',   description: 'd3-force physics — main entity pinned at center' },
   { kind: 'tree-tb', label: 'Tree ↓', description: 'Hierarchical top-to-bottom (Dagre)' },
   { kind: 'tree-lr', label: 'Tree →', description: 'Hierarchical left-to-right (Dagre)' },
   { kind: 'circular', label: 'Circular', description: 'Concentric rings by node type' },
