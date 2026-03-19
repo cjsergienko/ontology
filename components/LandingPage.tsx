@@ -81,57 +81,71 @@ const FEATURES = [
 
 const PRICING = [
   {
-    name: 'Basic',
-    price: '€250',
+    name: 'Free',
+    price: '€0',
+    period: '',
+    tagline: 'Try the builder, no card needed',
+    highlighted: false,
+    cta: 'Get started free',
+    ctaHref: '/login',
+    features: [
+      '2 ontologies',
+      '50 nodes per ontology',
+      'Visual graph editor',
+      'JSON export',
+      'Demo ontology access',
+    ],
+  },
+  {
+    name: 'Starter',
+    price: '€29',
     period: '/month',
     tagline: 'For individuals building structured domains',
     highlighted: false,
-    cta: 'Get started',
+    cta: 'Start with Starter',
     ctaHref: '/login',
     features: [
-      '5 ontologies',
-      '100 nodes per ontology',
-      '10 MB max import size',
+      '10 ontologies',
+      '500 nodes per ontology',
+      '10 AI-assisted imports/month',
       'Visual graph editor',
-      'JSON export',
+      'JSON + YAML export',
       'Email support',
     ],
   },
   {
     name: 'Pro',
-    price: '€900',
+    price: '€149',
     period: '/month',
-    tagline: 'For teams running AI agent pipelines',
+    tagline: 'For AI engineers & knowledge teams',
     highlighted: true,
     badge: 'Most Popular',
     cta: 'Start with Pro',
     ctaHref: '/login',
     features: [
-      '50 ontologies',
-      '1,000 nodes per ontology',
-      '100 MB max import size',
-      'Visual graph editor',
+      'Unlimited ontologies',
+      'Unlimited nodes',
+      '100 AI imports + 20 analyses/month',
       'JSON + YAML export',
       'API access',
       'Priority support',
-      'Version history',
     ],
   },
   {
-    name: 'VIP',
-    price: '€1,500',
+    name: 'Business',
+    price: '€499',
     period: '/month',
-    tagline: 'On-premise & deep integration',
+    tagline: 'For teams with unlimited AI pipeline usage',
     highlighted: false,
     cta: 'Contact us',
     ctaHref: 'mailto:contact@ontology.live',
     features: [
       'Unlimited ontologies',
-      'On-premise deployment',
-      'Integration in existing services',
-      'Custom AI pipeline training',
-      'Dedicated support team',
-      'SLA guarantee',
+      'Unlimited nodes',
+      'Unlimited AI imports & analyses',
+      'API access',
+      'Dedicated support',
+      'Custom integrations',
     ],
   },
 ]
@@ -865,7 +879,7 @@ export function LandingPage() {
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(99,102,241,0.12)' }}>
                   <th style={{ textAlign: 'left', padding: '18px 24px', color: '#475569', fontWeight: 500 }}>Feature</th>
-                  {['Basic', 'Pro', 'VIP', 'Custom'].map(p => (
+                  {['Free', 'Starter', 'Pro', 'Business', 'Custom'].map(p => (
                     <th key={p} style={{
                       padding: '18px 24px', color: p === 'Pro' ? '#a5b4fc' : '#64748b',
                       fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 13,
@@ -876,13 +890,13 @@ export function LandingPage() {
               </thead>
               <tbody>
                 {[
-                  ['Ontologies', '5', '50', 'Unlimited', 'Unlimited'],
-                  ['Nodes per ontology', '100', '1,000', 'Unlimited', 'Unlimited'],
-                  ['Max import size', '10 MB', '100 MB', 'Unlimited', 'Unlimited'],
-                  ['YAML export', '—', '✓', '✓', '✓'],
-                  ['API access', '—', '✓', '✓', '✓'],
-                  ['On-premise deployment', '—', '—', '✓', '✓'],
-                  ['Dedicated consultant', '—', '—', '—', '✓'],
+                  ['Ontologies', '2', '10', 'Unlimited', 'Unlimited', 'Unlimited'],
+                  ['Nodes per ontology', '50', '500', 'Unlimited', 'Unlimited', 'Unlimited'],
+                  ['AI imports/month', '—', '10', '100', 'Unlimited', 'Unlimited'],
+                  ['AI analyses/month', '—', '—', '20', 'Unlimited', 'Unlimited'],
+                  ['YAML export', '—', '✓', '✓', '✓', '✓'],
+                  ['API access', '—', '—', '✓', '✓', '✓'],
+                  ['Dedicated consultant', '—', '—', '—', '—', '✓'],
                 ].map(([label, ...vals], i) => (
                   <tr key={label} style={{
                     borderBottom: '1px solid rgba(99,102,241,0.06)',

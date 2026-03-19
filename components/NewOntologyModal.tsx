@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
   XIcon, FileIcon, FileTextIcon, ImageIcon, AlertCircleIcon,
-  PlusIcon, PencilIcon, UploadIcon, FilesIcon,
+  PlusIcon, PencilIcon, UploadIcon, FilesIcon, ZapIcon,
 } from 'lucide-react'
 
 interface Props {
@@ -64,6 +64,7 @@ export function NewOntologyModal({ onClose }: Props) {
   }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [limitError, setLimitError] = useState<string | null>(null)
 
   // Build mode
   const [form, setForm] = useState({ name: '', description: '', domain: '' })
@@ -78,7 +79,7 @@ export function NewOntologyModal({ onClose }: Props) {
   const [analyzeDragging, setAnalyzeDragging] = useState(false)
   const analyzeRef = useRef<HTMLInputElement>(null)
 
-  const clearError = () => setError(null)
+  const clearError = () => { setError(null); setLimitError(null) }
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
@@ -92,6 +93,11 @@ export function NewOntologyModal({ onClose }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string }
+        if (res.status === 403) { setLimitError(err.error ?? 'Plan limit reached'); setLoading(false); return }
+        throw new Error(err.error ?? `Server error ${res.status}`)
+      }
       const created = await res.json()
       router.push(`/ontology/${created.id}`)
     } catch (e) {
@@ -119,6 +125,7 @@ export function NewOntologyModal({ onClose }: Props) {
       const resp = await fetch('/api/ontologies/import', { method: 'POST', body: fd })
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({})) as { error?: string }
+        if (resp.status === 403) { setLimitError(err.error ?? 'Plan limit reached'); setLoading(false); return }
         throw new Error(err.error ?? `Server error ${resp.status}`)
       }
       const ct = resp.headers.get('content-type') ?? ''
@@ -163,6 +170,7 @@ export function NewOntologyModal({ onClose }: Props) {
       const resp = await fetch('/api/ontologies/upload', { method: 'POST', body: fd })
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({})) as { error?: string }
+        if (resp.status === 403) { setLimitError(err.error ?? 'Plan limit reached'); setLoading(false); return }
         throw new Error(err.error ?? `Server error ${resp.status}`)
       }
       const ct = resp.headers.get('content-type') ?? ''
@@ -456,6 +464,19 @@ export function NewOntologyModal({ onClose }: Props) {
               style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
               <AlertCircleIcon size={12} className="shrink-0 mt-0.5" />
               {error}
+            </div>
+          )}
+          {/* Plan limit error */}
+          {limitError && (
+            <div className="flex items-start gap-2 p-3 rounded text-xs"
+              style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24' }}>
+              <ZapIcon size={12} className="shrink-0 mt-0.5" />
+              <span>
+                {limitError}{' '}
+                <a href="/pricing" className="underline font-semibold" style={{ color: '#f59e0b' }}>
+                  View upgrade options →
+                </a>
+              </span>
             </div>
           )}
         </div>

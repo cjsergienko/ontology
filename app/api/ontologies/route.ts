@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import { listOntologies, saveOntology } from '@/lib/storage'
+import { auth } from '@/auth'
+import { getOrCreateUser, countUserOntologies } from '@/lib/users'
+import { getPlanLimits } from '@/lib/plans'
 import type { Ontology } from '@/lib/types'
 
 export async function GET() {
@@ -8,6 +11,24 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const session = await auth()
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { user } = getOrCreateUser(session.user.email, session.user.name ?? '')
+  const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
+
+  if (limits.ontologies !== -1) {
+    const count = countUserOntologies(user.id)
+    if (count >= limits.ontologies) {
+      return NextResponse.json(
+        { error: `Plan limit reached: your ${user.plan} plan allows ${limits.ontologies} ontologies. Upgrade to create more.` },
+        { status: 403 },
+      )
+    }
+  }
+
   const body = await req.json()
   const ontology: Ontology = {
     id: crypto.randomUUID(),
@@ -19,6 +40,6 @@ export async function POST(req: Request) {
     nodes: [],
     edges: [],
   }
-  saveOntology(ontology)
+  saveOntology(ontology, user.id)
   return NextResponse.json(ontology, { status: 201 })
 }
