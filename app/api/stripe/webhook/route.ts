@@ -4,23 +4,20 @@ import { getDb } from '@/lib/db'
 import { updateUserPlan } from '@/lib/users'
 import type { Plan } from '@/lib/plans'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!
-
-// Needed to read raw body for Stripe signature verification
-export const config = { api: { bodyParser: false } }
-
 export async function POST(req: Request) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')
 
-  if (!sig || !WEBHOOK_SECRET) {
-    return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
+  if (!sig || !webhookSecret) {
+    return NextResponse.json({ error: 'Missing signature or secret' }, { status: 400 })
   }
 
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, sig, WEBHOOK_SECRET)
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
   } catch (err) {
     console.error('[stripe webhook] signature verification failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
@@ -33,14 +30,20 @@ export async function POST(req: Request) {
     const subscriptionId = session.subscription as string
 
     if (plan && customerId) {
-      // Look up user by stripe_customer_id or by metadata userId
       const db = getDb()
-      let userRow = db.prepare('SELECT email FROM users WHERE stripe_customer_id = ?').get(customerId) as { email: string } | undefined
+      let userRow = db
+        .prepare('SELECT email FROM users WHERE stripe_customer_id = ?')
+        .get(customerId) as { email: string } | undefined
       if (!userRow && session.metadata?.userId) {
-        userRow = db.prepare('SELECT email FROM users WHERE id = ?').get(session.metadata.userId) as { email: string } | undefined
+        userRow = db
+          .prepare('SELECT email FROM users WHERE id = ?')
+          .get(session.metadata.userId) as { email: string } | undefined
       }
       if (userRow) {
         updateUserPlan(userRow.email, plan, customerId, subscriptionId)
+        console.log(`[stripe webhook] upgraded ${userRow.email} to ${plan}`)
+      } else {
+        console.error('[stripe webhook] no user found for customer', customerId)
       }
     }
   }
@@ -49,9 +52,12 @@ export async function POST(req: Request) {
     const sub = event.data.object as Stripe.Subscription
     const customerId = sub.customer as string
     const db = getDb()
-    const userRow = db.prepare('SELECT email FROM users WHERE stripe_customer_id = ?').get(customerId) as { email: string } | undefined
+    const userRow = db
+      .prepare('SELECT email FROM users WHERE stripe_customer_id = ?')
+      .get(customerId) as { email: string } | undefined
     if (userRow) {
       updateUserPlan(userRow.email, 'free', customerId, '')
+      console.log(`[stripe webhook] downgraded ${userRow.email} to free`)
     }
   }
 
