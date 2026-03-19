@@ -43,7 +43,7 @@ export function SignOutButton() {
         e.currentTarget.style.color = '#94a3b8'
       }}
     >
-      sign out
+      out
     </button>
   )
 }
