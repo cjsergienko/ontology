@@ -78,6 +78,17 @@ body:has(> main > .landing-page) > main {
   padding: 0;
 }
 
+/* Dashboard — natural page scroll so footer flows with content */
+body:has(> main > .dashboard-page) {
+  height: auto;
+  overflow: auto;
+}
+
+body:has(> main > .dashboard-page) > main {
+  flex: none;
+  overflow: visible;
+}
+
 /* React Flow overrides */
 .react-flow__background {
   background: var(--bg) !important;

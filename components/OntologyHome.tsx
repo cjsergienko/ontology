@@ -152,7 +152,7 @@ export function OntologyHome({ initialOntologies }: Props) {
   const COLS = '72px 1fr 96px 80px 80px 64px 64px 96px 36px'
 
   return (
-    <div className="h-full flex flex-col" style={{ background: 'var(--bg)', overflow: 'hidden' }}>
+    <div className="dashboard-page flex flex-col" style={{ background: 'var(--bg)', minHeight: '100%' }}>
       {/* Header */}
       <header style={{ borderBottom: '1px solid var(--border)', padding: '14px 40px' }} className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
@@ -188,7 +188,7 @@ export function OntologyHome({ initialOntologies }: Props) {
       </header>
 
       {/* Body */}
-      <div className="flex-1 overflow-auto py-6" style={{ paddingLeft: 40, paddingRight: 40 }}>
+      <div className="py-6" style={{ paddingLeft: 40, paddingRight: 40 }}>
         {/* Capability tiles */}
         <div style={{ marginBottom: 36 }}>
           <CapabilityTiles onAction={openModal} />
