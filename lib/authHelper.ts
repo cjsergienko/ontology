@@ -30,12 +30,10 @@ export async function getSessionUser(): Promise<{ email: string; name: string; u
         const { user } = getOrCreateUser(PLAN_TEST_EMAIL, PLAN_TEST_NAME)
         return { email: user.email, name: user.name, userId: user.id }
       }
-      // Default main test user → auto-upgraded to pro so import/analyze don't block tests
+      // Default main test user → always on pro with reset counters so import/analyze don't block tests
       const { user } = getOrCreateUser(TEST_EMAIL, TEST_NAME)
-      if (user.plan === 'free') {
-        const { getDb } = await import('@/lib/db')
-        getDb().prepare(`UPDATE users SET plan = 'pro' WHERE email = ?`).run(TEST_EMAIL)
-      }
+      const { getDb } = await import('@/lib/db')
+      getDb().prepare(`UPDATE users SET plan = 'pro', import_count = 0, analyze_count = 0 WHERE email = ?`).run(TEST_EMAIL)
       return { email: user.email, name: user.name, userId: user.id }
     }
   }
