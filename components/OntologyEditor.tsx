@@ -38,6 +38,7 @@ import {
   DownloadIcon, PlayIcon,
 } from 'lucide-react'
 import Link from 'next/link'
+import { stringify as yamlStringify } from 'yaml'
 import { JDPreviewPanel } from './JDPreviewPanel'
 import { applyLayout, LAYOUT_OPTIONS, type LayoutKind } from '@/lib/layout'
 
@@ -176,6 +177,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [addEdgeType, setAddEdgeType] = useState<EdgeType>('relates_to')
+  const [downloadOpen, setDownloadOpen] = useState(false)
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
 
   // URL-derived UI state
@@ -321,7 +323,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
     setTimeout(() => setSaved(false), 2000)
   }, [nodes, edges, ontology])
 
-  const exportJSON = useCallback(() => {
+  const buildExportData = useCallback(() => {
     const currentNodes: OntologyNode[] = nodes.map(n => ({
       ...(n.data as unknown as OntologyNode),
       position: n.position,
@@ -333,15 +335,31 @@ function OntologyEditorInner({ initialOntology }: Props) {
       label: (e.data as { label: string })?.label ?? String(e.label ?? ''),
       type: ((e.data as { type: EdgeType })?.type) ?? 'relates_to',
     }))
-    const data = { ...ontology, nodes: currentNodes, edges: currentEdges }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    return { ...ontology, nodes: currentNodes, edges: currentEdges }
+  }, [nodes, edges, ontology])
+
+  const downloadFile = useCallback((content: string, filename: string, mime: string) => {
+    const blob = new Blob([content], { type: mime })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${ontology.name.replace(/\s+/g, '_').toLowerCase()}.json`
+    a.download = filename
     a.click()
     URL.revokeObjectURL(url)
-  }, [nodes, edges, ontology])
+    setDownloadOpen(false)
+  }, [])
+
+  const exportJSON = useCallback(() => {
+    const data = buildExportData()
+    const slug = ontology.name.replace(/\s+/g, '_').toLowerCase()
+    downloadFile(JSON.stringify(data, null, 2), `${slug}.json`, 'application/json')
+  }, [buildExportData, downloadFile, ontology.name])
+
+  const exportYAML = useCallback(() => {
+    const data = buildExportData()
+    const slug = ontology.name.replace(/\s+/g, '_').toLowerCase()
+    downloadFile(yamlStringify(data), `${slug}.yaml`, 'text/yaml')
+  }, [buildExportData, downloadFile, ontology.name])
 
   return (
     <div className="h-full flex flex-col" style={{ background: 'var(--bg)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 24px rgba(0,0,0,0.08)' }}>
@@ -388,16 +406,6 @@ function OntologyEditorInner({ initialOntology }: Props) {
             Try
           </button>
           <button
-            onClick={exportJSON}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition-all"
-            style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
-          >
-            <DownloadIcon size={11} />
-            Taxonomy
-          </button>
-          <button
             onClick={save}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all"
             style={{
@@ -409,6 +417,44 @@ function OntologyEditorInner({ initialOntology }: Props) {
             <SaveIcon size={11} />
             {saving ? 'Saving...' : saved ? 'Saved ✓' : 'Save'}
           </button>
+          <div className="relative">
+            <button
+              onClick={() => setDownloadOpen(o => !o)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition-all"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+            >
+              <DownloadIcon size={11} />
+              Download
+            </button>
+            {downloadOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setDownloadOpen(false)} />
+                <div
+                  className="absolute right-0 top-full mt-1 rounded-lg overflow-hidden z-50"
+                  style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', minWidth: 160 }}
+                >
+                  {[
+                    { label: 'JSON', desc: 'Ontology + graph data', fn: exportJSON },
+                    { label: 'YAML', desc: 'Human-readable taxonomy', fn: exportYAML },
+                  ].map(opt => (
+                    <button
+                      key={opt.label}
+                      onClick={opt.fn}
+                      className="w-full flex flex-col items-start px-3 py-2.5 text-left transition-colors"
+                      style={{ borderBottom: '1px solid var(--border)' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <span className="text-xs font-medium" style={{ color: 'var(--text)' }}>{opt.label}</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{opt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
