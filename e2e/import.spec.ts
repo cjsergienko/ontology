@@ -11,8 +11,8 @@ const VALID_ONTOLOGY_JSON = JSON.stringify({
   edges: [],
 })
 
-// The home-page button that opens ImportOntologyModal
-const OPEN_IMPORT_MODAL_BUTTON = 'Upload Ontology'
+// The capability tile heading that opens ImportOntologyModal
+const OPEN_IMPORT_MODAL_TILE = 'Upload Ontology'
 // The modal title
 const IMPORT_MODAL_TITLE = 'Upload Ontology File'
 
@@ -45,20 +45,20 @@ test.afterEach(async ({ request }) => {
 
 test('import modal opens from home page', async ({ page }) => {
   await login(page)
-  await page.getByRole('button', { name: OPEN_IMPORT_MODAL_BUTTON }).click()
+  await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
   await expect(page.getByText(IMPORT_MODAL_TITLE)).toBeVisible()
 })
 
 test('import button is disabled with no file selected', async ({ page }) => {
   await login(page)
-  await page.getByRole('button', { name: OPEN_IMPORT_MODAL_BUTTON }).click()
+  await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
   const importBtn = page.getByRole('button', { name: /import ontology/i })
   await expect(importBtn).toBeDisabled()
 })
 
 test('cancel button closes the modal', async ({ page }) => {
   await login(page)
-  await page.getByRole('button', { name: OPEN_IMPORT_MODAL_BUTTON }).click()
+  await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
   await expect(page.getByText(IMPORT_MODAL_TITLE)).toBeVisible()
   await page.getByRole('button', { name: /cancel/i }).click()
   await expect(page.getByText(IMPORT_MODAL_TITLE)).not.toBeVisible()
@@ -67,7 +67,7 @@ test('cancel button closes the modal', async ({ page }) => {
 
 test('selecting a file shows filename and enables import button', async ({ page }) => {
   await login(page)
-  await page.getByRole('button', { name: OPEN_IMPORT_MODAL_BUTTON }).click()
+  await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
 
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
@@ -85,7 +85,7 @@ test('selecting a file shows filename and enables import button', async ({ page 
 
 test('clearing selected file disables import button', async ({ page }) => {
   await login(page)
-  await page.getByRole('button', { name: OPEN_IMPORT_MODAL_BUTTON }).click()
+  await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
 
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
@@ -106,7 +106,7 @@ test('clearing selected file disables import button', async ({ page }) => {
 
 test('importing valid JSON ontology redirects to editor', async ({ page }) => {
   await login(page)
-  await page.getByRole('button', { name: OPEN_IMPORT_MODAL_BUTTON }).click()
+  await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
 
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
@@ -126,7 +126,7 @@ test('importing valid JSON ontology redirects to editor', async ({ page }) => {
 
 test('importing valid JSON ontology shows its name in the editor', async ({ page }) => {
   await login(page)
-  await page.getByRole('button', { name: OPEN_IMPORT_MODAL_BUTTON }).click()
+  await page.getByRole('heading', { name: OPEN_IMPORT_MODAL_TILE, exact: true }).click()
 
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
