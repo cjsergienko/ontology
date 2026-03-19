@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { getSessionUser } from '@/lib/authHelper'
-import { getUserByEmail, countUserOntologies } from '@/lib/users'
 import { getPlanLimits } from '@/lib/plans'
 
 export async function GET() {
+  const { getSessionUser } = await import('@/lib/authHelper')
+  const { getUserByEmail, countUserOntologies } = await import('@/lib/users')
+
   const sessionUser = await getSessionUser()
   if (!sessionUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
