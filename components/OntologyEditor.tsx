@@ -74,21 +74,6 @@ function LayoutIcon({ kind }: { kind: string }) {
         <line x1="8" y1="8.5" x2="2.5" y2="12" stroke="currentColor" strokeWidth="0.9" opacity="0.35"/>
       </svg>
     )
-    case 'forceatlas2': return (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <circle cx="4" cy="8" r="2" fill="currentColor"/>
-        <circle cx="1.5" cy="3.5" r="1.2" fill="currentColor" opacity="0.7"/>
-        <circle cx="1.5" cy="12.5" r="1.2" fill="currentColor" opacity="0.7"/>
-        <line x1="4" y1="8" x2="1.5" y2="3.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
-        <line x1="4" y1="8" x2="1.5" y2="12.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
-        <circle cx="12" cy="8" r="2" fill="currentColor"/>
-        <circle cx="14.5" cy="3.5" r="1.2" fill="currentColor" opacity="0.7"/>
-        <circle cx="14.5" cy="12.5" r="1.2" fill="currentColor" opacity="0.7"/>
-        <line x1="12" y1="8" x2="14.5" y2="3.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
-        <line x1="12" y1="8" x2="14.5" y2="12.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
-        <line x1="4" y1="8" x2="12" y2="8" stroke="currentColor" strokeWidth="0.8" opacity="0.25"/>
-      </svg>
-    )
     case 'tree-tb': return (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <circle cx="8" cy="2" r="1.5" fill="currentColor"/>

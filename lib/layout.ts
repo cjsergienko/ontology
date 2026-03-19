@@ -7,15 +7,14 @@ const NODE_WIDTH = 200
 const NODE_HEIGHT = 60
 const COLLISION_RADIUS = Math.sqrt(NODE_WIDTH ** 2 + NODE_HEIGHT ** 2) / 2 + 60
 
-export type LayoutKind = 'force' | 'spring' | 'forceatlas2' | 'tree-tb' | 'tree-lr' | 'circular'
+export type LayoutKind = 'force' | 'spring' | 'tree-tb' | 'tree-lr' | 'circular'
 
 export const LAYOUT_OPTIONS: { kind: LayoutKind; label: string; description: string }[] = [
-  { kind: 'force',       label: 'Force',        description: 'd3-force physics — main entity pinned at center' },
-  { kind: 'spring',      label: 'Spring',        description: 'Fruchterman-Reingold — balanced edge lengths' },
-  { kind: 'forceatlas2', label: 'ForceAtlas2',   description: 'Degree-weighted forces — highlights clusters' },
-  { kind: 'tree-tb',     label: 'Tree ↓',        description: 'Hierarchical top-to-bottom (Dagre)' },
-  { kind: 'tree-lr',     label: 'Tree →',        description: 'Hierarchical left-to-right (Dagre)' },
-  { kind: 'circular',    label: 'Circular',      description: 'Concentric rings by node type' },
+  { kind: 'force',   label: 'Force',   description: 'd3-force physics — main entity pinned at center' },
+  { kind: 'spring',  label: 'Spring',  description: 'Fruchterman-Reingold — balanced edge lengths' },
+  { kind: 'tree-tb', label: 'Tree ↓', description: 'Hierarchical top-to-bottom (Dagre)' },
+  { kind: 'tree-lr', label: 'Tree →', description: 'Hierarchical left-to-right (Dagre)' },
+  { kind: 'circular', label: 'Circular', description: 'Concentric rings by node type' },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -135,110 +134,6 @@ function springLayout(nodes: Node[], edges: Edge[], iterations = 100): Node[] {
   })
 }
 
-// ── ForceAtlas2 ───────────────────────────────────────────────────────────────
-// Ref: https://networkx.org/documentation/stable/reference/drawing.html
-// Degree-weighted repulsion, linear attraction, global gravity.
-// Each node has an adaptive speed to prevent oscillation (swing damping).
-
-function forceAtlas2Layout(
-  nodes: Node[],
-  edges: Edge[],
-  {
-    iterations = 200,
-    scalingRatio = 2.0,
-    gravity = 1.0,
-    linLog = false,
-  } = {},
-): Node[] {
-  const n = nodes.length
-  const deg = buildDegreeMap(nodes, edges)
-  const ev = validEdges(nodes, edges)
-
-  // Seed on a circle
-  const pos = new Map<string, { x: number; y: number }>()
-  const vel = new Map<string, { x: number; y: number }>()
-  const swg = new Map<string, number>()
-  nodes.forEach((node, i) => {
-    const a = (2 * Math.PI * i) / n
-    const r = 400
-    pos.set(node.id, { x: r * Math.cos(a), y: r * Math.sin(a) })
-    vel.set(node.id, { x: 0, y: 0 })
-    swg.set(node.id, 0)
-  })
-
-  const speed = new Map<string, number>()
-  for (const node of nodes) speed.set(node.id, 1.0)
-
-  for (let iter = 0; iter < iterations; iter++) {
-    const force = new Map<string, { x: number; y: number }>()
-    for (const node of nodes) force.set(node.id, { x: 0, y: 0 })
-
-    // Repulsion: Fr = scalingRatio * (d(u)+1) * (d(v)+1) / dist
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        const u = nodes[i], v = nodes[j]
-        const pu = pos.get(u.id)!, pv = pos.get(v.id)!
-        const dx = pu.x - pv.x, dy = pu.y - pv.y
-        const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 0.01)
-        const du = (deg.get(u.id) ?? 0) + 1
-        const dv = (deg.get(v.id) ?? 0) + 1
-        const f = scalingRatio * du * dv / dist
-        const nx = (dx / dist) * f, ny = (dy / dist) * f
-        const fu = force.get(u.id)!, fv = force.get(v.id)!
-        fu.x += nx; fu.y += ny
-        fv.x -= nx; fv.y -= ny
-      }
-    }
-
-    // Attraction: Fa = dist  (linLog: log(1+dist))
-    for (const e of ev) {
-      const pu = pos.get(e.source)!, pv = pos.get(e.target)!
-      const dx = pv.x - pu.x, dy = pv.y - pu.y
-      const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 0.01)
-      const f = linLog ? Math.log(1 + dist) : dist
-      const nx = (dx / dist) * f, ny = (dy / dist) * f
-      const fs = force.get(e.source)!, ft = force.get(e.target)!
-      fs.x += nx; fs.y += ny
-      ft.x -= nx; ft.y -= ny
-    }
-
-    // Gravity toward center: Fg = gravity * (d(u)+1) * distance_from_center
-    for (const node of nodes) {
-      const p = pos.get(node.id)!
-      const dist = Math.max(Math.sqrt(p.x * p.x + p.y * p.y), 0.01)
-      const d = (deg.get(node.id) ?? 0) + 1
-      const f = gravity * d
-      const fo = force.get(node.id)!
-      fo.x -= (p.x / dist) * f
-      fo.y -= (p.y / dist) * f
-    }
-
-    // Adaptive speed with swing damping
-    for (const node of nodes) {
-      const fo = force.get(node.id)!
-      const pv = vel.get(node.id)!
-      // swing = magnitude of force change (oscillation detector)
-      const sx = fo.x - pv.x, sy = fo.y - pv.y
-      const swing = Math.sqrt(sx * sx + sy * sy)
-      swg.set(node.id, swing)
-      // speed inversely proportional to swing
-      const sp = Math.max(0.01, Math.min(speed.get(node.id)! * 0.9 + 0.1 / (1 + swing), 10))
-      speed.set(node.id, sp)
-      vel.set(node.id, { x: fo.x, y: fo.y })
-      const p = pos.get(node.id)!
-      const flen = Math.max(Math.sqrt(fo.x * fo.x + fo.y * fo.y), 0.01)
-      const step = Math.min(sp, flen) / flen
-      p.x += fo.x * step
-      p.y += fo.y * step
-    }
-  }
-
-  return nodes.map(n => {
-    const p = pos.get(n.id)!
-    return { ...n, position: { x: p.x - NODE_WIDTH / 2, y: p.y - NODE_HEIGHT / 2 } }
-  })
-}
-
 // ── Dagre hierarchical ────────────────────────────────────────────────────────
 
 function dagreLayout(nodes: Node[], edges: Edge[], direction: 'TB' | 'LR'): Node[] {
@@ -284,11 +179,10 @@ function circularLayout(nodes: Node[], _edges: Edge[]): Node[] {
 export function applyLayout(nodes: Node[], edges: Edge[], kind: LayoutKind): Node[] {
   if (nodes.length === 0) return nodes
   switch (kind) {
-    case 'force':       return forceLayout(nodes, edges)
-    case 'spring':      return springLayout(nodes, edges)
-    case 'forceatlas2': return forceAtlas2Layout(nodes, edges)
-    case 'tree-tb':     return dagreLayout(nodes, edges, 'TB')
-    case 'tree-lr':     return dagreLayout(nodes, edges, 'LR')
-    case 'circular':    return circularLayout(nodes, edges)
+    case 'force':    return forceLayout(nodes, edges)
+    case 'spring':   return springLayout(nodes, edges)
+    case 'tree-tb':  return dagreLayout(nodes, edges, 'TB')
+    case 'tree-lr':  return dagreLayout(nodes, edges, 'LR')
+    case 'circular': return circularLayout(nodes, edges)
   }
 }
