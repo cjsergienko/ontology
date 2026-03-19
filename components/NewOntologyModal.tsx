@@ -296,6 +296,11 @@ export function NewOntologyModal({ onClose }: Props) {
           {/* ── Import File ── */}
           {mode === 'import' && (
             <>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                Import your existing ontology file — we'll parse it and build an interactive visual graph.
+                You can then explore the structure, edit nodes and relationships in the visual editor,
+                and export the result as JSON or YAML.
+              </p>
               <div
                 onDrop={onImportDrop}
                 onDragOver={e => { e.preventDefault(); setImportDragging(true) }}
@@ -360,6 +365,12 @@ export function NewOntologyModal({ onClose }: Props) {
           {/* ── Learn from Documents ── */}
           {mode === 'analyze' && (
             <>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                Upload several files in the same format — job descriptions, contracts, reports, product specs,
+                or any structured text. We'll analyze the content, discover the common structure,
+                identify entities and relationships, and automatically generate a taxonomy and ontology
+                that reflects how your data is actually organized.
+              </p>
               <div
                 onDrop={onAnalyzeDrop}
                 onDragOver={e => { e.preventDefault(); setAnalyzeDragging(true) }}
