@@ -101,9 +101,12 @@ interface Ontology {
 
 ## Notifications (`lib/notify.ts`)
 - `sendRegistrationEmail` — fires on new user first sign-in
-- Uses Resend SMTP (`smtp.resend.com:465`) when `RESEND_API_KEY` is set in `.env.local`
-- Falls back to generic SMTP (`SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`) or local sendmail
-- From: `contact@ontology.live` · To: `NOTIFY_EMAIL` (default `ssergienko@pivotsdoo.com`)
+- Uses **Gmail API** (same OAuth pattern as pivots-crm): refresh token → access token → `gmail.send`
+- Config files: symlinked from `pivots-crm/config/` into `ontology/config/` (gitignored)
+  - `config/gmail-credentials.json` — OAuth client credentials
+  - `config/gmail-token-ssergienko.json` — refresh token for ssergienko@pivotsdoo.com sender
+- To: `NOTIFY_EMAIL` env var (default `ssergienko@pivotsdoo.com`)
+- If config files missing, skips silently (non-fatal)
 
 ## Ontologies are user-scoped
 - `listOntologies(userId?)` filters by `user_id` — users see only their own
