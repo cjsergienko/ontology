@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           gtag('config', 'G-QN69YV0RFG');
         `}</Script>
         <SiteHeader />
-        <main>{children}</main>
+        <main style={{ flex: 1 }}>{children}</main>
         <SiteFooter />
       </body>
     </html>
