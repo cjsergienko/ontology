@@ -467,6 +467,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
             minZoom={0.1}
             maxZoom={2}
             deleteKeyCode="Delete"
+            proOptions={{ hideAttribution: true }}
           >
             <Background
               variant={BackgroundVariant.Dots}
