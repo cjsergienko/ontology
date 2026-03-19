@@ -45,7 +45,7 @@ export function SiteFooter() {
                   ontology<span style={{ color: '#6366f1' }}>.live</span>
                 </span>
               </a>
-              <p style={{ fontSize: 12, color: '#334155', margin: 0, maxWidth: 260, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 12, color: '#64748b', margin: 0, maxWidth: 260, lineHeight: 1.6 }}>
                 Visual ontology & knowledge graph designer for AI agent pipelines.
               </p>
             </div>
