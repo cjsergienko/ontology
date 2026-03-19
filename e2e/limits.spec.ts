@@ -7,10 +7,10 @@
  * state without going through Stripe or making real Claude calls.
  *
  * Limits by plan:
- *   free:     2 ontologies, 0 imports/month, 0 analyzes/month
- *   starter:  10 ontologies, 10 imports/month, 0 analyzes/month
- *   pro:      unlimited ontologies, 100 imports/month, 20 analyzes/month
- *   business: unlimited everything
+ *   free:     2 ontologies, 0 imports/month, 0 analyzes/month, no YAML export
+ *   starter:  10 ontologies, 10 imports/month, 0 analyzes/month, YAML export
+ *   pro:      unlimited ontologies, 100 imports/month, 20 analyzes/month, YAML export
+ *   business: unlimited everything, YAML export
  */
 import { test, expect } from '@playwright/test'
 
@@ -180,6 +180,45 @@ test.describe('pro plan limits', () => {
       const res = await createOntology(request, `Pro Ontology ${i + 1}`)
       expect(res.status()).toBe(201)
     }
+  })
+})
+
+// ─── YAML Export ─────────────────────────────────────────────────────────────
+
+test.describe('yaml export', () => {
+  test.afterEach(async ({ request }) => { await cleanup(request) })
+
+  test('free plan cannot export YAML (403)', async ({ request }) => {
+    await setup(request, { plan: 'free', fresh: true })
+    // Get the seeded ontology id
+    const list = await request.get('/api/ontologies')
+    const ontologies = await list.json()
+    const id = ontologies[0].id
+    const res = await request.get(`/api/ontologies/${id}/export`)
+    expect(res.status()).toBe(403)
+    const body = await res.json()
+    expect(body.error).toMatch(/plan|upgrade/i)
+  })
+
+  test('starter plan can export YAML (200)', async ({ request }) => {
+    await setup(request, { plan: 'starter', fresh: true })
+    const list = await request.get('/api/ontologies')
+    const ontologies = await list.json()
+    const id = ontologies[0].id
+    const res = await request.get(`/api/ontologies/${id}/export`)
+    expect(res.status()).toBe(200)
+    expect(res.headers()['content-type']).toMatch(/yaml/)
+    const text = await res.text()
+    expect(text).toMatch(/name:/)
+  })
+
+  test('pro plan can export YAML (200)', async ({ request }) => {
+    await setup(request, { plan: 'pro', fresh: true })
+    const list = await request.get('/api/ontologies')
+    const ontologies = await list.json()
+    const id = ontologies[0].id
+    const res = await request.get(`/api/ontologies/${id}/export`)
+    expect(res.status()).toBe(200)
   })
 })
 
