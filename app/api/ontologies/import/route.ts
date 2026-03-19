@@ -74,6 +74,25 @@ function buildOntology(parsed: { name?: string; description?: string; domain?: s
 }
 
 export async function POST(req: Request) {
+  const { getSessionUser } = await import('@/lib/authHelper')
+  const { getUserByEmail, canImport, incrementImportCount } = await import('@/lib/users')
+
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const user = getUserByEmail(sessionUser.email)!
+
+  if (!canImport(sessionUser.email)) {
+    const { getPlanLimits } = await import('@/lib/plans')
+    const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
+    return NextResponse.json(
+      { error: `Import limit reached: your ${user.plan} plan allows ${limits.importsPerMonth} imports/month. Upgrade to import more.` },
+      { status: 403 },
+    )
+  }
+
   const formData = await req.formData()
   const file = formData.get('file') as File | null
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
@@ -88,7 +107,8 @@ export async function POST(req: Request) {
       const parsed = JSON.parse(fullText)
       if (parsed.nodes && parsed.edges && parsed.name) {
         const ontology = buildOntology(parsed, file.name)
-        saveOntology(ontology)
+        saveOntology(ontology, user.id)
+        incrementImportCount(sessionUser.email)
         return NextResponse.json(ontology)
       }
     } catch { /* not valid JSON or wrong shape — fall through to Claude */ }
@@ -178,7 +198,8 @@ export async function POST(req: Request) {
     const parsed = JSON.parse(jsonMatch ? jsonMatch[1] : rawText)
 
     const ontology = buildOntology(parsed, file.name)
-    saveOntology(ontology)
+    saveOntology(ontology, user.id)
+    incrementImportCount(sessionUser.email)
     return ontology
   })
 }

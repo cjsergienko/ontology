@@ -122,6 +122,7 @@ function LayoutIcon({ kind }: { kind: string }) {
 
 interface Props {
   initialOntology: Ontology
+  readOnly?: boolean
 }
 
 export function OntologyEditor(props: Props) {
@@ -165,7 +166,7 @@ const NODE_TYPE_OPTIONS: { type: NodeType; icon: React.ReactNode; desc: string }
 
 const EDGE_TYPE_OPTIONS: EdgeType[] = ['is_a', 'has_property', 'has_value', 'relates_to', 'part_of', 'constrains', 'instance_of']
 
-function OntologyEditorInner({ initialOntology }: Props) {
+function OntologyEditorInner({ initialOntology, readOnly = false }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -179,6 +180,15 @@ function OntologyEditorInner({ initialOntology }: Props) {
   const [addEdgeType, setAddEdgeType] = useState<EdgeType>('relates_to')
   const [downloadOpen, setDownloadOpen] = useState(false)
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
+  const [demoViews, setDemoViews] = useState(0)
+
+  useEffect(() => {
+    if (!readOnly) return
+    const key = 'demo_views'
+    const v = parseInt(localStorage.getItem(key) ?? '0', 10) + 1
+    localStorage.setItem(key, String(v))
+    setDemoViews(v)
+  }, [readOnly])
 
   // URL-derived UI state
   const previewOpen = searchParams.get('panel') === 'preview'
@@ -397,6 +407,16 @@ function OntologyEditorInner({ initialOntology }: Props) {
           <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
             {nodes.length} nodes · {edges.length} edges
           </span>
+          {readOnly ? (
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-all"
+              style={{ background: 'var(--accent)', color: '#000', border: '1px solid var(--accent)' }}
+            >
+              Sign in to edit →
+            </Link>
+          ) : (
+          <>
           <button
             onClick={() => setParams({ panel: 'preview' })}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all"
@@ -418,7 +438,9 @@ function OntologyEditorInner({ initialOntology }: Props) {
             <SaveIcon size={11} />
             {saving ? 'Saving...' : saved ? 'Saved ✓' : 'Save'}
           </button>
-          <div className="relative">
+          </>
+          )}
+          {!readOnly && <div className="relative">
             <button
               onClick={() => setDownloadOpen(o => !o)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all"
@@ -455,9 +477,35 @@ function OntologyEditorInner({ initialOntology }: Props) {
                 </div>
               </>
             )}
-          </div>
+          </div>}
         </div>
       </header>
+
+      {/* Demo banner */}
+      {readOnly && (
+        <div style={{
+          background: 'rgba(99,102,241,0.08)',
+          borderBottom: '1px solid rgba(99,102,241,0.2)',
+          padding: '8px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: 12,
+          color: 'var(--text-muted)',
+        }}>
+          <span>
+            <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Demo ontology</span>
+            {' — '}read-only view
+            {demoViews > 0 && <span style={{ color: 'var(--text-dim)', marginLeft: 8 }}>Viewed {demoViews}×</span>}
+          </span>
+          <Link
+            href="/login"
+            style={{ color: '#f59e0b', fontWeight: 600, fontSize: 12 }}
+          >
+            Sign in to build your own →
+          </Link>
+        </div>
+      )}
 
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden">

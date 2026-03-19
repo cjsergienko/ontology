@@ -1,10 +1,7 @@
 import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
-
-const ALLOWED_EMAILS = (process.env.ALLOWED_EMAILS ?? '')
-  .split(',')
-  .map(e => e.trim().toLowerCase())
-  .filter(Boolean)
+import { getOrCreateUser } from './lib/users'
+import { sendRegistrationEmail } from './lib/notify'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -14,9 +11,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    signIn({ user }) {
-      if (ALLOWED_EMAILS.length === 0) return false
-      return ALLOWED_EMAILS.includes((user.email ?? '').toLowerCase())
+    async signIn({ user }) {
+      if (!user.email) return false
+      const isNew = await getOrCreateUser(user.email, user.name ?? '')
+      if (isNew) {
+        await sendRegistrationEmail(user.email, user.name ?? '')
+      }
+      return true
     },
   },
   pages: {

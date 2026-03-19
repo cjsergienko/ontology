@@ -21,15 +21,36 @@ export function getDb(): Database.Database {
 
 function initSchema(db: Database.Database) {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id                     TEXT PRIMARY KEY,
+      email                  TEXT NOT NULL UNIQUE,
+      name                   TEXT NOT NULL DEFAULT '',
+      plan                   TEXT NOT NULL DEFAULT 'free',
+      stripe_customer_id     TEXT,
+      stripe_subscription_id TEXT,
+      import_count           INTEGER NOT NULL DEFAULT 0,
+      analyze_count          INTEGER NOT NULL DEFAULT 0,
+      billing_period_start   TEXT,
+      created_at             TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS ontologies (
       id          TEXT PRIMARY KEY,
+      user_id     TEXT,
       name        TEXT NOT NULL,
       description TEXT NOT NULL DEFAULT '',
       domain      TEXT NOT NULL DEFAULT 'general',
       nodes       TEXT NOT NULL DEFAULT '[]',
       edges       TEXT NOT NULL DEFAULT '[]',
       created_at  TEXT NOT NULL,
-      updated_at  TEXT NOT NULL
-    )
+      updated_at  TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
   `)
+
+  // Migrations for existing DBs
+  const cols = db.pragma('table_info(ontologies)') as { name: string }[]
+  if (!cols.find(c => c.name === 'user_id')) {
+    db.exec(`ALTER TABLE ontologies ADD COLUMN user_id TEXT REFERENCES users(id)`)
+  }
 }

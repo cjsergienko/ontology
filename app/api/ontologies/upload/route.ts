@@ -103,6 +103,25 @@ function fileToContentBlock(name: string, mime: string, bytes: ArrayBuffer, inde
 }
 
 export async function POST(req: Request) {
+  const { getSessionUser } = await import('@/lib/authHelper')
+  const { getUserByEmail, canAnalyze, incrementAnalyzeCount } = await import('@/lib/users')
+
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const user = getUserByEmail(sessionUser.email)!
+
+  if (!canAnalyze(sessionUser.email)) {
+    const { getPlanLimits } = await import('@/lib/plans')
+    const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
+    return NextResponse.json(
+      { error: `Analyze limit reached: your ${user.plan} plan allows ${limits.analyzePerMonth} document analyses/month. Upgrade to analyze more.` },
+      { status: 403 },
+    )
+  }
+
   const formData = await req.formData()
   const files = formData.getAll('file') as File[]
   if (files.length === 0) return NextResponse.json({ error: 'No files provided' }, { status: 400 })
@@ -167,7 +186,8 @@ export async function POST(req: Request) {
       edges,
     }
 
-    saveOntology(ontology)
+    saveOntology(ontology, user.id)
+    incrementAnalyzeCount(sessionUser.email)
     return ontology
   })
 }

@@ -96,13 +96,13 @@ export function getOntology(id: string): Ontology | null {
   }
 }
 
-export function saveOntology(ontology: Ontology): void {
+export function saveOntology(ontology: Ontology, userId?: string): void {
   const db = getDb()
   const now = new Date().toISOString()
   ontology.updatedAt = now
   db.prepare(`
-    INSERT INTO ontologies (id, name, description, domain, nodes, edges, created_at, updated_at)
-    VALUES (@id, @name, @description, @domain, @nodes, @edges, @createdAt, @updatedAt)
+    INSERT INTO ontologies (id, user_id, name, description, domain, nodes, edges, created_at, updated_at)
+    VALUES (@id, @userId, @name, @description, @domain, @nodes, @edges, @createdAt, @updatedAt)
     ON CONFLICT(id) DO UPDATE SET
       name        = excluded.name,
       description = excluded.description,
@@ -112,6 +112,7 @@ export function saveOntology(ontology: Ontology): void {
       updated_at  = excluded.updated_at
   `).run({
     id: ontology.id,
+    userId: userId ?? null,
     name: ontology.name,
     description: ontology.description,
     domain: ontology.domain,

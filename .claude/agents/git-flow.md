@@ -6,21 +6,29 @@ tools: Bash, Read, Glob, Grep
 
 # Git Flow Agent — ontology.live
 
-## Primary Rule
-**NEVER push to `main` directly. No exceptions.**
+## Primary Rules
+1. **All work goes on `dev` branch. Always.**
+2. **NEVER push to `main` directly. No exceptions.**
+3. **NEVER open a PR to `main` unless the user explicitly says to.**
 
-The full rules live at `/Users/sserg/infrastructure/GIT_FLOW.md` — read it if you need to resolve an edge case.
+Main is a release branch. Dev is the working branch. PRs to main are a deliberate release action decided by the user, not something Claude does automatically.
+
+The full infra rules live at `/Users/sserg/infrastructure/GIT_FLOW.md`.
 
 ## Required workflow every single time
 
 ```
-1. git checkout -b <prefix>/<short-description>
+1. git checkout dev            ← always work on dev
 2. git add <specific files>
 3. git commit -m "message\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
-4. git push -u origin <branch>          ← pre-push hook runs e2e tests
-5. gh pr create --title "..." --body "..."
-6. gh pr merge --squash                 ← or wait if it auto-merged
-7. git fetch origin && git checkout main && git reset --hard origin/main
+4. git push origin dev         ← pre-push hook runs e2e tests
+```
+
+## Merging to main — ONLY when user explicitly says so
+```
+gh pr create --base main --head dev --title "..." --body "..."
+gh pr merge --squash
+git fetch origin && git checkout dev && git rebase origin/main
 ```
 
 ## Branch naming
