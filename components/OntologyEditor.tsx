@@ -35,7 +35,7 @@ import { NodePanel } from './NodePanel'
 import {
   SaveIcon, ArrowLeftIcon, NetworkIcon,
   BoxIcon, LinkIcon, LayersIcon, ZapIcon, CrownIcon, FilterIcon,
-  DownloadIcon, PlayIcon, LayoutDashboardIcon,
+  DownloadIcon, PlayIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { JDPreviewPanel } from './JDPreviewPanel'
@@ -43,6 +43,95 @@ import { applyLayout, LAYOUT_OPTIONS, type LayoutKind } from '@/lib/layout'
 
 const nodeTypes: NodeTypes = {
   ontology: OntologyNodeComponent,
+}
+
+function LayoutIcon({ kind }: { kind: string }) {
+  switch (kind) {
+    case 'force': return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="2.5" fill="currentColor"/>
+        <circle cx="8" cy="1.5" r="1.3" fill="currentColor" opacity="0.6"/>
+        <circle cx="14.5" cy="8" r="1.3" fill="currentColor" opacity="0.6"/>
+        <circle cx="8" cy="14.5" r="1.3" fill="currentColor" opacity="0.6"/>
+        <circle cx="1.5" cy="8" r="1.3" fill="currentColor" opacity="0.6"/>
+        <line x1="8" y1="5.5" x2="8" y2="2.8" stroke="currentColor" strokeWidth="1" opacity="0.45"/>
+        <line x1="10.5" y1="8" x2="13.2" y2="8" stroke="currentColor" strokeWidth="1" opacity="0.45"/>
+        <line x1="8" y1="10.5" x2="8" y2="13.2" stroke="currentColor" strokeWidth="1" opacity="0.45"/>
+        <line x1="5.5" y1="8" x2="2.8" y2="8" stroke="currentColor" strokeWidth="1" opacity="0.45"/>
+      </svg>
+    )
+    case 'spring': return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="2.5" r="1.5" fill="currentColor"/>
+        <circle cx="13.5" cy="12" r="1.5" fill="currentColor" opacity="0.8"/>
+        <circle cx="2.5" cy="12" r="1.5" fill="currentColor" opacity="0.8"/>
+        <circle cx="8" cy="8.5" r="1.2" fill="currentColor" opacity="0.55"/>
+        <line x1="8" y1="2.5" x2="13.5" y2="12" stroke="currentColor" strokeWidth="0.9" opacity="0.35"/>
+        <line x1="8" y1="2.5" x2="2.5" y2="12" stroke="currentColor" strokeWidth="0.9" opacity="0.35"/>
+        <line x1="13.5" y1="12" x2="2.5" y2="12" stroke="currentColor" strokeWidth="0.9" opacity="0.35"/>
+        <line x1="8" y1="2.5" x2="8" y2="8.5" stroke="currentColor" strokeWidth="0.9" opacity="0.35"/>
+        <line x1="8" y1="8.5" x2="13.5" y2="12" stroke="currentColor" strokeWidth="0.9" opacity="0.35"/>
+        <line x1="8" y1="8.5" x2="2.5" y2="12" stroke="currentColor" strokeWidth="0.9" opacity="0.35"/>
+      </svg>
+    )
+    case 'forceatlas2': return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="4" cy="8" r="2" fill="currentColor"/>
+        <circle cx="1.5" cy="3.5" r="1.2" fill="currentColor" opacity="0.7"/>
+        <circle cx="1.5" cy="12.5" r="1.2" fill="currentColor" opacity="0.7"/>
+        <line x1="4" y1="8" x2="1.5" y2="3.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
+        <line x1="4" y1="8" x2="1.5" y2="12.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
+        <circle cx="12" cy="8" r="2" fill="currentColor"/>
+        <circle cx="14.5" cy="3.5" r="1.2" fill="currentColor" opacity="0.7"/>
+        <circle cx="14.5" cy="12.5" r="1.2" fill="currentColor" opacity="0.7"/>
+        <line x1="12" y1="8" x2="14.5" y2="3.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
+        <line x1="12" y1="8" x2="14.5" y2="12.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
+        <line x1="4" y1="8" x2="12" y2="8" stroke="currentColor" strokeWidth="0.8" opacity="0.25"/>
+      </svg>
+    )
+    case 'tree-tb': return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="2" r="1.5" fill="currentColor"/>
+        <circle cx="3.5" cy="7.5" r="1.3" fill="currentColor" opacity="0.8"/>
+        <circle cx="12.5" cy="7.5" r="1.3" fill="currentColor" opacity="0.8"/>
+        <circle cx="1.5" cy="13.5" r="1.1" fill="currentColor" opacity="0.6"/>
+        <circle cx="5.5" cy="13.5" r="1.1" fill="currentColor" opacity="0.6"/>
+        <circle cx="12.5" cy="13.5" r="1.1" fill="currentColor" opacity="0.6"/>
+        <line x1="8" y1="3.5" x2="3.5" y2="6.2" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
+        <line x1="8" y1="3.5" x2="12.5" y2="6.2" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
+        <line x1="3.5" y1="8.8" x2="1.5" y2="12.4" stroke="currentColor" strokeWidth="0.8" opacity="0.35"/>
+        <line x1="3.5" y1="8.8" x2="5.5" y2="12.4" stroke="currentColor" strokeWidth="0.8" opacity="0.35"/>
+        <line x1="12.5" y1="8.8" x2="12.5" y2="12.4" stroke="currentColor" strokeWidth="0.8" opacity="0.35"/>
+      </svg>
+    )
+    case 'tree-lr': return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="2" cy="8" r="1.5" fill="currentColor"/>
+        <circle cx="7.5" cy="3.5" r="1.3" fill="currentColor" opacity="0.8"/>
+        <circle cx="7.5" cy="12.5" r="1.3" fill="currentColor" opacity="0.8"/>
+        <circle cx="13.5" cy="1.5" r="1.1" fill="currentColor" opacity="0.6"/>
+        <circle cx="13.5" cy="5.5" r="1.1" fill="currentColor" opacity="0.6"/>
+        <circle cx="13.5" cy="12.5" r="1.1" fill="currentColor" opacity="0.6"/>
+        <line x1="3.5" y1="8" x2="6.2" y2="3.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
+        <line x1="3.5" y1="8" x2="6.2" y2="12.5" stroke="currentColor" strokeWidth="0.9" opacity="0.45"/>
+        <line x1="8.8" y1="3.5" x2="12.4" y2="1.5" stroke="currentColor" strokeWidth="0.8" opacity="0.35"/>
+        <line x1="8.8" y1="3.5" x2="12.4" y2="5.5" stroke="currentColor" strokeWidth="0.8" opacity="0.35"/>
+        <line x1="8.8" y1="12.5" x2="12.4" y2="12.5" stroke="currentColor" strokeWidth="0.8" opacity="0.35"/>
+      </svg>
+    )
+    case 'circular': return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="1.8" r="1.3" fill="currentColor"/>
+        <circle cx="13.5" cy="5" r="1.3" fill="currentColor" opacity="0.85"/>
+        <circle cx="13.5" cy="11" r="1.3" fill="currentColor" opacity="0.7"/>
+        <circle cx="8" cy="14.2" r="1.3" fill="currentColor" opacity="0.6"/>
+        <circle cx="2.5" cy="11" r="1.3" fill="currentColor" opacity="0.7"/>
+        <circle cx="2.5" cy="5" r="1.3" fill="currentColor" opacity="0.85"/>
+        <circle cx="8" cy="8" r="1.8" fill="currentColor" opacity="0.25"/>
+      </svg>
+    )
+    default: return null
+  }
 }
 
 interface Props {
@@ -102,7 +191,6 @@ function OntologyEditorInner({ initialOntology }: Props) {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [addEdgeType, setAddEdgeType] = useState<EdgeType>('relates_to')
-  const [layoutMenuOpen, setLayoutMenuOpen] = useState(false)
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
 
   // URL-derived UI state
@@ -139,7 +227,6 @@ function OntologyEditorInner({ initialOntology }: Props) {
   const activeLayout = (searchParams.get('layout') as LayoutKind | null) ?? 'spring'
 
   const autoLayout = useCallback((kind: LayoutKind) => {
-    setLayoutMenuOpen(false)
     setParams({ layout: kind })
     setNodes(ns => {
       const laid = applyLayout(ns, edges, kind)
@@ -315,44 +402,6 @@ function OntologyEditorInner({ initialOntology }: Props) {
             <PlayIcon size={11} />
             Try
           </button>
-          <div className="relative">
-            <button
-              onClick={() => setLayoutMenuOpen(o => !o)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition-all"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
-            >
-              <LayoutDashboardIcon size={11} />
-              Layout
-            </button>
-            {layoutMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setLayoutMenuOpen(false)} />
-                <div
-                  className="absolute right-0 top-full mt-1 rounded-lg overflow-hidden z-50"
-                  style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', minWidth: 220 }}
-                >
-                  {LAYOUT_OPTIONS.map(opt => (
-                    <button
-                      key={opt.kind}
-                      onClick={() => autoLayout(opt.kind)}
-                      className="w-full flex flex-col items-start px-3 py-2.5 text-left transition-colors"
-                      style={{
-                        borderBottom: '1px solid var(--border)',
-                        background: opt.kind === activeLayout ? 'var(--accent-dim)' : 'transparent',
-                      }}
-                      onMouseEnter={e => (e.currentTarget.style.background = opt.kind === activeLayout ? 'var(--accent-dim)' : 'var(--surface)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = opt.kind === activeLayout ? 'var(--accent-dim)' : 'transparent')}
-                    >
-                      <span className="text-xs font-medium" style={{ color: opt.kind === activeLayout ? 'var(--accent)' : 'var(--text)' }}>{opt.label}</span>
-                      <span className="text-xs mt-0.5" style={{ color: 'var(--text-muted)', fontSize: 10 }}>{opt.description}</span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
           <button
             onClick={exportJSON}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition-all"
@@ -482,6 +531,40 @@ function OntologyEditorInner({ initialOntology }: Props) {
               maskColor="rgba(241,245,249,0.7)"
             />
           </ReactFlow>
+
+          {/* Layout picker */}
+          <div style={{
+            position: 'absolute', top: 12, right: 12, zIndex: 10,
+            display: 'flex', flexDirection: 'column', gap: 3,
+            background: 'var(--surface)', border: '1px solid var(--border)',
+            borderRadius: 8, padding: 3,
+          }}>
+            {LAYOUT_OPTIONS.map(opt => (
+              <button
+                key={opt.kind}
+                onClick={() => autoLayout(opt.kind)}
+                title={`${opt.label} — ${opt.description}`}
+                style={{
+                  width: 28, height: 28,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: 5, border: 'none',
+                  background: opt.kind === activeLayout ? 'var(--accent-dim)' : 'transparent',
+                  color: opt.kind === activeLayout ? 'var(--accent)' : 'var(--text-dim)',
+                  cursor: 'pointer', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => {
+                  if (opt.kind !== activeLayout) e.currentTarget.style.background = 'var(--surface2)'
+                  if (opt.kind !== activeLayout) e.currentTarget.style.color = 'var(--text)'
+                }}
+                onMouseLeave={e => {
+                  if (opt.kind !== activeLayout) e.currentTarget.style.background = 'transparent'
+                  if (opt.kind !== activeLayout) e.currentTarget.style.color = 'var(--text-dim)'
+                }}
+              >
+                <LayoutIcon kind={opt.kind} />
+              </button>
+            ))}
+          </div>
 
           {/* Empty state */}
           {nodes.length === 0 && (
