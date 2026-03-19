@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { CapabilityTiles } from './CapabilityTiles'
 
 const FEATURES = [
@@ -88,6 +88,7 @@ const PRICING = [
     highlighted: false,
     cta: 'Get started free',
     ctaHref: '/login',
+    planKey: null as string | null,
     features: [
       '2 ontologies',
       '50 nodes per ontology',
@@ -104,6 +105,7 @@ const PRICING = [
     highlighted: false,
     cta: 'Start with Starter',
     ctaHref: '/login',
+    planKey: 'starter',
     features: [
       '10 ontologies',
       '500 nodes per ontology',
@@ -122,6 +124,7 @@ const PRICING = [
     badge: 'Most Popular',
     cta: 'Start with Pro',
     ctaHref: '/login',
+    planKey: 'pro',
     features: [
       'Unlimited ontologies',
       'Unlimited nodes',
@@ -139,6 +142,7 @@ const PRICING = [
     highlighted: false,
     cta: 'Contact us',
     ctaHref: 'mailto:contact@ontology.live',
+    planKey: null,
     features: [
       'Unlimited ontologies',
       'Unlimited nodes',
@@ -251,6 +255,27 @@ function HeroGraph() {
 }
 
 export function LandingPage() {
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+
+  async function handleCheckout(planKey: string) {
+    setCheckoutLoading(planKey)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: planKey }),
+      })
+      if (res.status === 401) {
+        window.location.href = '/login'
+        return
+      }
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } finally {
+      setCheckoutLoading(null)
+    }
+  }
+
   return (
     <div className="landing-page" style={{
       background: '#070b14',
@@ -699,47 +724,86 @@ export function LandingPage() {
                   ))}
                 </div>
 
-                <a
-                  href={plan.ctaHref}
-                  style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    padding: '13px 0',
-                    borderRadius: 9999,
-                    background: plan.highlighted
-                      ? '#6366f1'
-                      : 'transparent',
-                    border: plan.highlighted
-                      ? 'none'
-                      : '1px solid rgba(99,102,241,0.3)',
-                    color: plan.highlighted ? '#fff' : '#818cf8',
-                    fontFamily: "'Syne', sans-serif",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    textDecoration: 'none',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={e => {
-                    if (plan.highlighted) {
-                      e.currentTarget.style.background = '#4f46e5'
-                    } else {
-                      e.currentTarget.style.borderColor = 'rgba(99,102,241,0.6)'
-                      e.currentTarget.style.color = '#a5b4fc'
-                    }
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                  }}
-                  onMouseLeave={e => {
-                    if (plan.highlighted) {
-                      e.currentTarget.style.background = '#6366f1'
-                    } else {
-                      e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'
-                      e.currentTarget.style.color = '#818cf8'
-                    }
-                    e.currentTarget.style.transform = 'translateY(0)'
-                  }}
-                >
-                  {plan.cta}
-                </a>
+                {plan.planKey ? (
+                  <button
+                    onClick={() => handleCheckout(plan.planKey!)}
+                    disabled={checkoutLoading === plan.planKey}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'center',
+                      padding: '13px 0',
+                      borderRadius: 9999,
+                      background: plan.highlighted ? '#6366f1' : 'transparent',
+                      border: plan.highlighted ? 'none' : '1px solid rgba(99,102,241,0.3)',
+                      color: plan.highlighted ? '#fff' : '#818cf8',
+                      fontFamily: "'Syne', sans-serif",
+                      fontWeight: 700,
+                      fontSize: 13,
+                      transition: 'all 0.2s',
+                      opacity: checkoutLoading === plan.planKey ? 0.6 : 1,
+                    }}
+                    onMouseEnter={e => {
+                      if (checkoutLoading) return
+                      if (plan.highlighted) {
+                        e.currentTarget.style.background = '#4f46e5'
+                      } else {
+                        e.currentTarget.style.borderColor = 'rgba(99,102,241,0.6)'
+                        e.currentTarget.style.color = '#a5b4fc'
+                      }
+                      e.currentTarget.style.transform = 'translateY(-1px)'
+                    }}
+                    onMouseLeave={e => {
+                      if (plan.highlighted) {
+                        e.currentTarget.style.background = '#6366f1'
+                      } else {
+                        e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'
+                        e.currentTarget.style.color = '#818cf8'
+                      }
+                      e.currentTarget.style.transform = 'translateY(0)'
+                    }}
+                  >
+                    {checkoutLoading === plan.planKey ? 'Redirecting…' : plan.cta}
+                  </button>
+                ) : (
+                  <a
+                    href={plan.ctaHref}
+                    style={{
+                      display: 'block',
+                      textAlign: 'center',
+                      padding: '13px 0',
+                      borderRadius: 9999,
+                      background: plan.highlighted ? '#6366f1' : 'transparent',
+                      border: plan.highlighted ? 'none' : '1px solid rgba(99,102,241,0.3)',
+                      color: plan.highlighted ? '#fff' : '#818cf8',
+                      fontFamily: "'Syne', sans-serif",
+                      fontWeight: 700,
+                      fontSize: 13,
+                      textDecoration: 'none',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => {
+                      if (plan.highlighted) {
+                        e.currentTarget.style.background = '#4f46e5'
+                      } else {
+                        e.currentTarget.style.borderColor = 'rgba(99,102,241,0.6)'
+                        e.currentTarget.style.color = '#a5b4fc'
+                      }
+                      e.currentTarget.style.transform = 'translateY(-1px)'
+                    }}
+                    onMouseLeave={e => {
+                      if (plan.highlighted) {
+                        e.currentTarget.style.background = '#6366f1'
+                      } else {
+                        e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'
+                        e.currentTarget.style.color = '#818cf8'
+                      }
+                      e.currentTarget.style.transform = 'translateY(0)'
+                    }}
+                  >
+                    {plan.cta}
+                  </a>
+                )}
               </div>
             ))}
 
