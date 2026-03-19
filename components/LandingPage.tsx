@@ -250,7 +250,7 @@ function CustomCard() {
 // Animated hero graph
 function HeroGraph() {
   return (
-    <svg width="520" height="380" viewBox="0 0 520 380" fill="none" xmlns="http://www.w3.org/2000/svg"
+    <svg width="520" height="400" viewBox="0 0 520 400" fill="none" xmlns="http://www.w3.org/2000/svg"
       style={{ maxWidth: '100%', height: 'auto' }}>
       <style>{`
         @keyframes nodePulse {
@@ -334,14 +334,14 @@ function HeroGraph() {
       <circle className="n6" cx="320" cy="320" r="7" fill="#8b5cf6"/>
 
       {/* Labels */}
-      <text className="lbl lbl1" x="260" y="162" textAnchor="middle" fontSize="9" fill="#f1f5f9" fontFamily="JetBrains Mono, monospace" fontWeight="500">JobDescription</text>
-      <text className="lbl lbl2" x="130" y="62" textAnchor="middle" fontSize="8" fill="#a5b4fc" fontFamily="JetBrains Mono, monospace">Role</text>
-      <text className="lbl lbl3" x="390" y="62" textAnchor="middle" fontSize="8" fill="#a5b4fc" fontFamily="JetBrains Mono, monospace">Skills</text>
-      <text className="lbl lbl4" x="90" y="232" textAnchor="middle" fontSize="8" fill="#fcd34d" fontFamily="JetBrains Mono, monospace">Seniority</text>
-      <text className="lbl lbl5" x="430" y="232" textAnchor="middle" fontSize="8" fill="#fcd34d" fontFamily="JetBrains Mono, monospace">Domain</text>
-      <text className="lbl lbl6" x="200" y="342" textAnchor="middle" fontSize="8" fill="#c4b5fd" fontFamily="JetBrains Mono, monospace">Senior</text>
-      <text className="lbl lbl7" x="320" y="342" textAnchor="middle" fontSize="8" fill="#c4b5fd" fontFamily="JetBrains Mono, monospace">hiring</text>
-      <text className="lbl lbl8" x="50" y="328" textAnchor="middle" fontSize="7" fill="#6ee7b7" fontFamily="JetBrains Mono, monospace">is_a</text>
+      <text className="lbl lbl1" x="260" y="160" textAnchor="middle" fontSize="12" fill="#f1f5f9" fontFamily="JetBrains Mono, monospace" fontWeight="600">JobDescription</text>
+      <text className="lbl lbl2" x="130" y="60" textAnchor="middle" fontSize="11" fill="#a5b4fc" fontFamily="JetBrains Mono, monospace">Role</text>
+      <text className="lbl lbl3" x="390" y="60" textAnchor="middle" fontSize="11" fill="#a5b4fc" fontFamily="JetBrains Mono, monospace">Skills</text>
+      <text className="lbl lbl4" x="90" y="236" textAnchor="middle" fontSize="11" fill="#fcd34d" fontFamily="JetBrains Mono, monospace">Seniority</text>
+      <text className="lbl lbl5" x="430" y="236" textAnchor="middle" fontSize="11" fill="#fcd34d" fontFamily="JetBrains Mono, monospace">Domain</text>
+      <text className="lbl lbl6" x="200" y="348" textAnchor="middle" fontSize="11" fill="#c4b5fd" fontFamily="JetBrains Mono, monospace">Senior</text>
+      <text className="lbl lbl7" x="320" y="348" textAnchor="middle" fontSize="11" fill="#c4b5fd" fontFamily="JetBrains Mono, monospace">hiring</text>
+      <text className="lbl lbl8" x="50" y="332" textAnchor="middle" fontSize="10" fill="#6ee7b7" fontFamily="JetBrains Mono, monospace">is_a</text>
     </svg>
   )
 }
