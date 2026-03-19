@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { getOntology } from '@/lib/storage'
 import { notFound } from 'next/navigation'
-import { auth } from '@/auth'
+import { getSessionUser } from '@/lib/authHelper'
 import { OntologyEditor } from '@/components/OntologyEditor'
 import { DEMO_ONTOLOGY_ID } from '@/lib/plans'
 
@@ -12,14 +12,14 @@ export default async function OntologyPage({ params }: { params: Promise<{ id: s
   const ontology = getOntology(id)
   if (!ontology) notFound()
 
-  const session = await auth()
+  const sessionUser = await getSessionUser()
 
   // Unauthenticated users can only view the demo ontology (read-only)
-  if (!session && id !== DEMO_ONTOLOGY_ID) {
+  if (!sessionUser && id !== DEMO_ONTOLOGY_ID) {
     notFound()
   }
 
-  const isDemo = id === DEMO_ONTOLOGY_ID && !session
+  const isDemo = id === DEMO_ONTOLOGY_ID && !sessionUser
 
   return (
     <Suspense>
