@@ -191,7 +191,7 @@ export function OntologyHome({ initialOntologies }: Props) {
         </div>
         <div className="flex items-center gap-3">
           {userInfo && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" style={{ paddingRight: 16 }}>
               <span style={{
                 fontSize: 11,
                 padding: '3px 10px',
