@@ -66,10 +66,16 @@ body > main {
   border-radius: 0;
 }
 
-/* Landing page — full bleed, allow scroll */
-body > main:has(> .landing-page) {
+/* Landing page — full bleed, natural page scroll (footer flows with content) */
+body:has(> main > .landing-page) {
+  height: auto;
+  overflow: visible;
+}
+
+body:has(> main > .landing-page) > main {
+  flex: none;
+  overflow: visible;
   padding: 0;
-  overflow: auto;
 }
 
 /* React Flow overrides */
