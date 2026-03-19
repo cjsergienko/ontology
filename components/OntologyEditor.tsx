@@ -280,7 +280,7 @@ function OntologyEditorInner({ initialOntology }: Props) {
       >
         <div className="flex items-center gap-4">
           <Link
-            href="/"
+            href="/dashboard"
             className="flex items-center gap-1.5 text-xs transition-colors"
             style={{ color: 'var(--text-muted)' }}
             onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
