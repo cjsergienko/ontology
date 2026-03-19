@@ -258,7 +258,7 @@ function HeroGraph() {
           50% { opacity: 1; r: 10; }
         }
         @keyframes edgeDraw {
-          from { stroke-dashoffset: 200; opacity: 0; }
+          from { stroke-dashoffset: 300; opacity: 0; }
           to { stroke-dashoffset: 0; opacity: 0.45; }
         }
         @keyframes labelFade {
@@ -273,7 +273,7 @@ function HeroGraph() {
         .n6 { animation: nodePulse 3.2s ease-in-out infinite 2.0s; }
         .n7 { animation: nodePulse 3.2s ease-in-out infinite 2.4s; }
         .n8 { animation: nodePulse 3.2s ease-in-out infinite 2.8s; }
-        .e { stroke-dasharray: 200; animation: edgeDraw 1.4s ease forwards; }
+        .e { stroke-dasharray: 300; animation: edgeDraw 1.4s ease forwards; }
         .e1 { animation-delay: 0.1s; }
         .e2 { animation-delay: 0.3s; }
         .e3 { animation-delay: 0.5s; }
