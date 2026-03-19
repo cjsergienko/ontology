@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import type { Ontology } from '@/lib/types'
-import { PlusIcon, BoxIcon, NetworkIcon, TrashIcon, ArrowRightIcon, UploadIcon, FileJsonIcon } from 'lucide-react'
+import { PlusIcon, BoxIcon, NetworkIcon, TrashIcon, ArrowRightIcon } from 'lucide-react'
 import { UploadOntologyModal } from './UploadOntologyModal'
 import { ImportOntologyModal } from './ImportOntologyModal'
 import { CapabilityTiles } from './CapabilityTiles'
@@ -83,34 +83,6 @@ export function OntologyHome({ initialOntologies }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => openModal('import')}
-            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all"
-            style={{
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              color: 'var(--text-muted)',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border2)'; (e.currentTarget as HTMLElement).style.color = 'var(--text)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
-          >
-            <FileJsonIcon size={14} />
-            Upload Ontology
-          </button>
-          <button
-            onClick={() => openModal('upload')}
-            className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all"
-            style={{
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              color: 'var(--text-muted)',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border2)'; (e.currentTarget as HTMLElement).style.color = 'var(--text)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
-          >
-            <UploadIcon size={14} />
-            Upload Examples
-          </button>
           <button
             onClick={() => openModal('create')}
             className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all"
