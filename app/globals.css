@@ -36,9 +36,8 @@ body {
   line-height: 1.6;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100%;
+  overflow: hidden;
 }
 
 body::before {
@@ -59,6 +58,7 @@ body::before {
 
 body > main {
   flex: 1;
+  min-height: 0;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -66,10 +66,10 @@ body > main {
   border-radius: 0;
 }
 
-/* Landing page — full bleed, no padding */
+/* Landing page — full bleed, allow scroll */
 body > main:has(> .landing-page) {
   padding: 0;
-  overflow: visible;
+  overflow: auto;
 }
 
 /* React Flow overrides */
