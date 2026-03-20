@@ -253,12 +253,12 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
             className="flex flex-col overflow-y-auto shrink-0"
             style={{ width: 296, borderRight: '1px solid var(--border)', padding: '16px' }}
           >
-            {/* DATASET */}
+            {/* DATASOURCE */}
             <div className="mb-4" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 16 }}>
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <DatabaseIcon size={11} style={{ color: 'var(--text-dim)' }} />
-                  <span className="text-xs font-medium" style={{ color: 'var(--text-dim)' }}>DATASET</span>
+                  <span className="text-xs font-medium" style={{ color: 'var(--text-dim)' }}>DATASOURCE</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   {datasetName && (
