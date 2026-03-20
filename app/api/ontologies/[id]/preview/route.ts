@@ -80,18 +80,30 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const ontology = getOntology(id)
   if (!ontology) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const { prompt } = await req.json()
+  const { prompt, dataset } = await req.json()
   if (!prompt) return NextResponse.json({ error: 'prompt is required' }, { status: 400 })
 
   const ontologyContext = serializeOntology(ontology)
 
-  const systemPrompt = `You are a document generator. The ontology below is your complete specification — it defines what to generate, how to format each section, what to exclude, and the generation contract in the root node.
+  const systemPrompt = dataset
+    ? `You are a document generator. The ontology below is your complete specification — it defines what to generate, how to format each section, what to exclude, and the generation contract in the root node.
+
+<ontology>
+${ontologyContext}
+</ontology>
+
+A dataset has been provided in the user message inside <dataset> tags. You MUST use that dataset as the sole source of facts and data — extract real values from it, do not invent or hallucinate any information. Apply the ontology structure to organise and present the data from the dataset. Write for a human reader.`
+    : `You are a document generator. The ontology below is your complete specification — it defines what to generate, how to format each section, what to exclude, and the generation contract in the root node.
 
 <ontology>
 ${ontologyContext}
 </ontology>
 
 Follow the generation contract in the root node's semantics exactly. Write for a human reader.`
+
+  const userMessage = dataset
+    ? `<dataset>\n${dataset}\n</dataset>\n\n${prompt}`
+    : prompt
 
   const t0 = Date.now()
   let resp: Response
@@ -107,7 +119,7 @@ Follow the generation contract in the root node's semantics exactly. Write for a
         model: MODEL,
         max_tokens: 4096,
         system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ role: 'user', content: userMessage }],
       }),
     })
   } catch (err) {

@@ -287,8 +287,34 @@ export function LandingPage() {
       overflowX: 'hidden',
     }}>
 
+      <style>{`
+        @media (max-width: 768px) {
+          .lp-hero-section { padding: 48px 20px !important; min-height: unset !important; }
+          .lp-hero-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+          .lp-hero-graph { display: none !important; }
+          .lp-domain-strip { padding: 16px 20px !important; }
+          .lp-four-ways { padding: 56px 20px 48px !important; }
+          .lp-features-section { padding: 60px 20px !important; }
+          .lp-features-grid { grid-template-columns: 1fr !important; }
+          .lp-pricing-section { padding: 60px 20px !important; }
+          .lp-pricing-grid { grid-template-columns: 1fr !important; }
+          .lp-pricing-grid > div { transform: none !important; }
+          .lp-comparison-section { padding: 32px 20px 60px !important; }
+          .lp-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .lp-table-scroll table { min-width: 520px; }
+          .lp-cta-section { padding: 60px 20px !important; }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .lp-hero-section { padding: 60px 32px !important; }
+          .lp-hero-grid { gap: 40px !important; }
+          .lp-features-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .lp-pricing-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .lp-pricing-grid > div { transform: none !important; }
+        }
+      `}</style>
+
       {/* ── HERO ────────────────────────────────────────────────── */}
-      <section style={{
+      <section className="lp-hero-section" style={{
         minHeight: '92vh',
         display: 'flex',
         alignItems: 'center',
@@ -316,7 +342,7 @@ export function LandingPage() {
           backgroundSize: '48px 48px',
         }}/>
 
-        <div style={{
+        <div className="lp-hero-grid" style={{
           maxWidth: 1200, width: '100%', margin: '0 auto',
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
@@ -448,7 +474,7 @@ export function LandingPage() {
           </div>
 
           {/* Right: Graph visualization */}
-          <div style={{
+          <div className="lp-hero-graph" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             position: 'relative',
           }}>
@@ -481,7 +507,7 @@ export function LandingPage() {
       </section>
 
       {/* ── DOMAIN STRIP ─────────────────────────────────────────── */}
-      <section style={{
+      <section className="lp-domain-strip" style={{
         borderTop: '1px solid rgba(99,102,241,0.08)',
         borderBottom: '1px solid rgba(99,102,241,0.08)',
         padding: '24px 40px',
@@ -506,7 +532,7 @@ export function LandingPage() {
       </section>
 
       {/* ── FOUR WAYS TO WORK ────────────────────────────────────── */}
-      <section style={{
+      <section className="lp-four-ways" style={{
         padding: '80px 40px 70px',
         borderTop: '1px solid rgba(99,102,241,0.08)',
         background: 'rgba(8,11,22,0.6)',
@@ -538,7 +564,7 @@ export function LandingPage() {
       </section>
 
       {/* ── FEATURES ─────────────────────────────────────────────── */}
-      <section id="features" style={{ padding: '100px 40px' }}>
+      <section id="features" className="lp-features-section" style={{ padding: '100px 40px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
             <div style={{
@@ -556,7 +582,7 @@ export function LandingPage() {
             </h2>
           </div>
 
-          <div style={{
+          <div className="lp-features-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 24,
@@ -604,7 +630,7 @@ export function LandingPage() {
       </section>
 
       {/* ── PRICING ──────────────────────────────────────────────── */}
-      <section id="pricing" style={{
+      <section id="pricing" className="lp-pricing-section" style={{
         padding: '100px 40px',
         background: 'rgba(9,13,28,0.8)',
         borderTop: '1px solid rgba(99,102,241,0.08)',
@@ -628,7 +654,7 @@ export function LandingPage() {
             </p>
           </div>
 
-          <div style={{
+          <div className="lp-pricing-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: 20,
@@ -815,7 +841,7 @@ export function LandingPage() {
       </section>
 
       {/* ── PLAN COMPARISON TABLE ────────────────────────────────── */}
-      <section style={{ padding: '60px 40px 100px', background: '#070b14' }}>
+      <section className="lp-comparison-section" style={{ padding: '60px 40px 100px', background: '#070b14' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <h3 style={{
             fontFamily: "'Syne', sans-serif",
@@ -824,7 +850,7 @@ export function LandingPage() {
           }}>
             Plan comparison
           </h3>
-          <div style={{
+          <div className="lp-table-scroll" style={{
             background: '#0d1224',
             border: '1px solid rgba(99,102,241,0.1)',
             borderRadius: 16,
@@ -875,7 +901,7 @@ export function LandingPage() {
       </section>
 
       {/* ── CTA SECTION ──────────────────────────────────────────── */}
-      <section style={{
+      <section className="lp-cta-section" style={{
         padding: '100px 40px',
         background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
         borderTop: '1px solid rgba(99,102,241,0.15)',
