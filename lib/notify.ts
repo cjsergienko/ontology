@@ -138,6 +138,79 @@ async function gmailSend(
   if (!res.ok) throw new Error(`Gmail send failed: ${await res.text()}`)
 }
 
+function buildContactHtml(userEmail: string, userName: string, message: string): string {
+  const time = new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })
+  const initial = (userName || userEmail)[0].toUpperCase()
+  const escapedMessage = message.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#070b14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#070b14;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+        <tr><td style="padding-bottom:28px;" align="center">
+          <span style="font-size:22px;font-weight:800;color:#f1f5f9;letter-spacing:-0.02em;">ontology<span style="color:#6366f1;">.</span>live</span>
+        </td></tr>
+        <tr><td style="background:#0d1224;border:1px solid #1e2a4a;border-radius:12px;padding:32px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+            <tr>
+              <td width="44" valign="middle">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);text-align:center;line-height:40px;font-size:18px;">✉️</div>
+              </td>
+              <td valign="middle" style="padding-left:14px;">
+                <div style="font-size:18px;font-weight:700;color:#f1f5f9;">Token limit contact request</div>
+                <div style="font-size:12px;color:#475569;margin-top:2px;">${time}</div>
+              </td>
+            </tr>
+          </table>
+          <div style="height:1px;background:#1e2a4a;margin-bottom:24px;"></div>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+            <tr>
+              <td width="48" valign="top">
+                <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);text-align:center;line-height:44px;font-size:18px;font-weight:700;color:#fff;">${initial}</div>
+              </td>
+              <td valign="top" style="padding-left:14px;">
+                <div style="font-size:15px;font-weight:600;color:#f1f5f9;">${userName || '(no name)'}</div>
+                <div style="font-size:13px;color:#6366f1;margin-top:3px;">${userEmail}</div>
+              </td>
+            </tr>
+          </table>
+          <div style="background:#070b14;border:1px solid #1e2a4a;border-radius:8px;padding:16px;font-size:14px;color:#cbd5e1;line-height:1.6;">${escapedMessage}</div>
+        </td></tr>
+        <tr><td style="padding-top:20px;" align="center">
+          <div style="font-size:11px;color:#334155;">ontology.live &nbsp;·&nbsp; contact@ontology.live</div>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
+
+export async function sendContactEmail(userEmail: string, userName: string, message: string) {
+  try {
+    if (!fs.existsSync(CREDENTIALS_PATH) || !fs.existsSync(TOKEN_PATH)) {
+      console.warn('[notify] Gmail config not found — skipping contact email')
+      return
+    }
+    const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf-8'))
+    const token = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf-8'))
+    const { client_id, client_secret } = credentials.installed ?? credentials.web ?? {}
+    const accessToken = await refreshAccessToken(token.refresh_token, client_id, client_secret)
+    await gmailSend(
+      accessToken,
+      'contact@ontology.live',
+      `Token limit request from ${userEmail}`,
+      buildContactHtml(userEmail, userName, message),
+    )
+    console.log(`[notify] contact email sent for ${userEmail}`)
+  } catch (err) {
+    console.error('[notify] contact email failed:', err)
+  }
+}
+
 export async function sendRegistrationEmail(userEmail: string, userName: string) {
   try {
     if (!fs.existsSync(CREDENTIALS_PATH) || !fs.existsSync(TOKEN_PATH)) {

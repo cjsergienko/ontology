@@ -69,6 +69,26 @@ EOF
 git fetch origin && git checkout main && git reset --hard origin/main
 ```
 
+## Two-remote git structure
+This repo has two remotes:
+| Remote | Repo | Purpose |
+|--------|------|---------|
+| `origin` | `cjsergienko/ontology-open` | **Public** — what is deployed on ontology.live (no payments) |
+| `private` | `cjsergienko/ontology` | Private — commercial backup with full Stripe/plan code |
+
+Push to `origin` (public fork) for deployment. Push to `private` only when preserving commercial history.
+
+```bash
+# Check remotes
+git remote -v
+
+# Push to public (deploy)
+git push origin dev
+
+# Push to private (backup)
+git push private dev
+```
+
 ## Deploy
 `ontology-builder` runs in **dev mode** via PM2 — hot-reload is automatic.
 No build step needed. Changes are live as soon as code is on disk.

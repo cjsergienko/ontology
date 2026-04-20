@@ -21,11 +21,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const { plan = 'free', importCount = 0, analyzeCount = 0, fresh = false } =
+  const { plan = 'free', importCount = 0, analyzeCount = 0, tokensUsed = 0, fresh = false } =
     (await req.json().catch(() => ({}))) as {
       plan?: Plan
       importCount?: number
       analyzeCount?: number
+      tokensUsed?: number
       fresh?: boolean
     }
 
@@ -44,8 +45,8 @@ export async function POST(req: Request) {
   const { user, isNew } = getOrCreateUser(PLAN_TEST_EMAIL, PLAN_TEST_NAME)
 
   db.prepare(
-    'UPDATE users SET plan = ?, import_count = ?, analyze_count = ? WHERE id = ?',
-  ).run(plan, importCount, analyzeCount, user.id)
+    'UPDATE users SET plan = ?, import_count = ?, analyze_count = ?, tokens_used = ? WHERE id = ?',
+  ).run(plan, importCount, analyzeCount, tokensUsed, user.id)
 
   if (isNew) {
     seedDemoOntology(user.id)

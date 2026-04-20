@@ -12,6 +12,7 @@ function uuid(): string {
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { XIcon, PlayIcon, AlertCircleIcon, ClockIcon, DatabaseIcon, UploadIcon } from 'lucide-react'
+import { TokenLimitModal } from './TokenLimitModal'
 
 interface NodeCoverageItem {
   label: string
@@ -132,6 +133,7 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<PreviewResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showTokenLimit, setShowTokenLimit] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -182,6 +184,7 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
       })
       if (!resp.ok) {
         const err = await resp.json()
+        if (resp.status === 402) { setShowTokenLimit(true); setLoading(false); return }
         throw new Error(err.error || 'Generation failed')
       }
       const data: PreviewResult = await resp.json()
@@ -211,6 +214,8 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
   const outputWords = result?.output ? result.output.split(/\s+/).filter(Boolean).length : 0
 
   return (
+    <>
+    {showTokenLimit && <TokenLimitModal onClose={() => setShowTokenLimit(false)} />}
     <div
       className="fixed inset-0 z-[110] flex"
       style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(2px)' }}
@@ -253,71 +258,6 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
             className="flex flex-col overflow-y-auto shrink-0"
             style={{ width: 296, borderRight: '1px solid var(--border)', padding: '16px' }}
           >
-            {/* DATASOURCE */}
-            <div className="mb-4" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 16 }}>
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-1.5">
-                  <DatabaseIcon size={11} style={{ color: 'var(--text-dim)' }} />
-                  <span className="text-xs font-medium" style={{ color: 'var(--text-dim)' }}>DATASOURCE</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  {datasetName && (
-                    <span className="text-xs font-mono truncate" style={{ maxWidth: 90, color: 'var(--text-muted)' }} title={datasetName}>
-                      {datasetName}
-                    </span>
-                  )}
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded transition-all"
-                    style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.borderColor = 'var(--border2)' }}
-                    onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)' }}
-                  >
-                    <UploadIcon size={10} />
-                    Upload
-                  </button>
-                  {dataset && (
-                    <button
-                      onClick={() => { setDataset(''); setDatasetName(null) }}
-                      className="flex items-center justify-center w-4 h-4 rounded transition-all"
-                      style={{ color: 'var(--text-dim)' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#ef4444')}
-                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-dim)')}
-                    >
-                      <XIcon size={11} />
-                    </button>
-                  )}
-                </div>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".txt,.csv,.json,.md,.yaml,.yml,.tsv"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <textarea
-                value={dataset}
-                onChange={e => { setDataset(e.target.value); if (!e.target.value) setDatasetName(null) }}
-                rows={4}
-                className="w-full text-xs rounded px-3 py-2 resize-none outline-none"
-                placeholder="Paste data or upload a file (CSV, JSON, TXT)…"
-                style={{
-                  background: 'var(--surface)',
-                  border: `1px solid ${dataset ? 'rgba(99,102,241,0.3)' : 'var(--border)'}`,
-                  color: 'var(--text)',
-                  fontFamily: 'inherit',
-                  minHeight: 80,
-                }}
-                onFocus={e => (e.target.style.borderColor = 'var(--border2)')}
-                onBlur={e => (e.target.style.borderColor = dataset ? 'rgba(99,102,241,0.3)' : 'var(--border)')}
-              />
-              {dataset && (
-                <div className="mt-1 text-xs font-mono" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
-                  {dataset.trim().split('\n').length} lines · {dataset.length.toLocaleString()} chars
-                </div>
-              )}
-            </div>
 
             {/* PROMPT */}
             <label className="text-xs font-medium mb-1.5" style={{ color: 'var(--text-dim)' }}>PROMPT</label>
@@ -799,5 +739,6 @@ export function JDPreviewPanel({ ontologyId, ontologyName, onClose }: Props) {
         </div>
       </div>
     </div>
+    </>
   )
 }

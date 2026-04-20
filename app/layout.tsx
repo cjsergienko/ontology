@@ -7,13 +7,13 @@ import { SiteFooter } from '@/components/SiteFooter'
 export const metadata: Metadata = {
   title: 'ontology.live — Visual Ontology & Knowledge Graph Designer',
   description: 'Design ontologies, taxonomies, and knowledge graphs visually. The structural backbone for AI agent pipelines.',
-  robots: { index: true, follow: true },
+  robots: { index: false, follow: false },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body suppressHydrationWarning>
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-QN69YV0RFG" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];

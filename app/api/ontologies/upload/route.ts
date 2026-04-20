@@ -104,7 +104,7 @@ function fileToContentBlock(name: string, mime: string, bytes: ArrayBuffer, inde
 
 export async function POST(req: Request) {
   const { getSessionUser } = await import('@/lib/authHelper')
-  const { getUserByEmail, canAnalyze, incrementAnalyzeCount } = await import('@/lib/users')
+  const { getUserByEmail, canUseAI, incrementTokensUsed } = await import('@/lib/users')
 
   const sessionUser = await getSessionUser()
   if (!sessionUser) {
@@ -113,13 +113,8 @@ export async function POST(req: Request) {
 
   const user = getUserByEmail(sessionUser.email)!
 
-  if (!canAnalyze(sessionUser.email)) {
-    const { getPlanLimits } = await import('@/lib/plans')
-    const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
-    return NextResponse.json(
-      { error: `Analyze limit reached: your ${user.plan} plan allows ${limits.analyzePerMonth} document analyses/month. Upgrade to analyze more.` },
-      { status: 403 },
-    )
+  if (!canUseAI(sessionUser.email)) {
+    return NextResponse.json({ error: 'token_limit' }, { status: 402 })
   }
 
   const formData = await req.formData()
@@ -187,7 +182,8 @@ export async function POST(req: Request) {
     }
 
     saveOntology(ontology, user.id)
-    incrementAnalyzeCount(sessionUser.email)
+    const outputTokens: number = claudeData.usage?.output_tokens ?? 0
+    incrementTokensUsed(sessionUser.email, outputTokens)
     return ontology
   })
 }

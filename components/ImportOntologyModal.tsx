@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FileJsonIcon, XIcon, FileIcon, AlertCircleIcon } from 'lucide-react'
+import { TokenLimitModal } from './TokenLimitModal'
 
 interface Props {
   onClose: () => void
@@ -31,6 +32,7 @@ export function ImportOntologyModal({ onClose }: Props) {
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showTokenLimit, setShowTokenLimit] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const setFileWithReset = (f: File) => { setFile(f); setError(null) }
@@ -54,6 +56,7 @@ export function ImportOntologyModal({ onClose }: Props) {
       fd.append('file', file)
       const resp = await fetch('/api/ontologies/import', { method: 'POST', body: fd })
       if (!resp.ok) {
+        if (resp.status === 402) { setShowTokenLimit(true); setLoading(false); return }
         const err = await resp.json().catch(() => ({})) as { error?: string }
         throw new Error(err.error ?? `Server error ${resp.status}`)
       }
@@ -73,6 +76,8 @@ export function ImportOntologyModal({ onClose }: Props) {
   }
 
   return (
+    <>
+    {showTokenLimit && <TokenLimitModal onClose={() => setShowTokenLimit(false)} />}
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ background: 'rgba(15,23,42,0.5)' }}
@@ -221,5 +226,6 @@ export function ImportOntologyModal({ onClose }: Props) {
         </div>
       </div>
     </div>
+    </>
   )
 }

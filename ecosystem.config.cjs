@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'ontology-builder',
       script: 'npm',
-      args: 'run dev -- --port 3900',
+      args: 'run dev -- --port 3900 --hostname 0.0.0.0',
       cwd: '/Users/sserg/ontology',
       env: {
         NODE_ENV: 'development',

@@ -75,7 +75,7 @@ function buildOntology(parsed: { name?: string; description?: string; domain?: s
 
 export async function POST(req: Request) {
   const { getSessionUser } = await import('@/lib/authHelper')
-  const { getUserByEmail, canImport, incrementImportCount } = await import('@/lib/users')
+  const { getUserByEmail, canUseAI, incrementImportCount, incrementTokensUsed } = await import('@/lib/users')
 
   const sessionUser = await getSessionUser()
   if (!sessionUser) {
@@ -84,13 +84,8 @@ export async function POST(req: Request) {
 
   const user = getUserByEmail(sessionUser.email)!
 
-  if (!canImport(sessionUser.email)) {
-    const { getPlanLimits } = await import('@/lib/plans')
-    const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
-    return NextResponse.json(
-      { error: `Import limit reached: your ${user.plan} plan allows ${limits.importsPerMonth} imports/month. Upgrade to import more.` },
-      { status: 403 },
-    )
+  if (!canUseAI(sessionUser.email)) {
+    return NextResponse.json({ error: 'token_limit' }, { status: 402 })
   }
 
   const formData = await req.formData()
@@ -179,7 +174,10 @@ export async function POST(req: Request) {
         try {
           const event = JSON.parse(payload)
           if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') rawText += event.delta.text
-          if (event.type === 'message_delta' && event.delta?.stop_reason) stopReason = event.delta.stop_reason
+          if (event.type === 'message_delta') {
+            if (event.delta?.stop_reason) stopReason = event.delta.stop_reason
+            if (event.usage?.output_tokens) incrementTokensUsed(sessionUser.email, event.usage.output_tokens)
+          }
         } catch { /* ignore malformed SSE lines */ }
       }
     }

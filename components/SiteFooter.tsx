@@ -72,7 +72,7 @@ export function SiteFooter() {
               </div>
               <div>
                 <div style={{ fontSize: 11, color: '#6366f1', letterSpacing: '0.1em', marginBottom: 12 }}>CONTACT</div>
-                <a href="mailto:contact@ontology.live" style={{
+                <a href="mailto:contact@ontology.live" suppressHydrationWarning style={{
                   display: 'block', fontSize: 13, color: '#475569', textDecoration: 'none',
                   marginBottom: 8,
                 }}>contact@ontology.live</a>

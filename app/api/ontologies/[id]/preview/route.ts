@@ -76,6 +76,16 @@ function measureNodeCoverage(output: string, o: Ontology) {
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { getSessionUser } = await import('@/lib/authHelper')
+  const { canUseAI, incrementTokensUsed } = await import('@/lib/users')
+
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  if (!canUseAI(sessionUser.email)) {
+    return NextResponse.json({ error: 'token_limit' }, { status: 402 })
+  }
+
   const { id } = await params
   const ontology = getOntology(id)
   if (!ontology) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -155,6 +165,8 @@ Follow the generation contract in the root node's semantics exactly. Write for a
     (cache_read_tokens / 1e6) * CACHE_READ_PRICE +
     (cache_write_tokens / 1e6) * CACHE_WRITE_PRICE
   )
+
+  incrementTokensUsed(sessionUser.email, output_tokens)
 
   return NextResponse.json({
     output,

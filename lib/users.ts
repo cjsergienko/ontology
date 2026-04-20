@@ -2,6 +2,8 @@ import { getDb } from './db'
 import { getPlanLimits, DEMO_ONTOLOGY_ID, type Plan } from './plans'
 import { randomUUID } from 'crypto'
 
+export const TOKEN_LIMIT = 3000
+
 export interface DbUser {
   id: string
   email: string
@@ -11,6 +13,7 @@ export interface DbUser {
   stripe_subscription_id: string | null
   import_count: number
   analyze_count: number
+  tokens_used: number
   billing_period_start: string | null
   created_at: string
 }
@@ -87,6 +90,16 @@ export function incrementImportCount(email: string) {
 
 export function incrementAnalyzeCount(email: string) {
   getDb().prepare('UPDATE users SET analyze_count = analyze_count + 1 WHERE email = ?').run(email)
+}
+
+export function canUseAI(email: string): boolean {
+  const user = getUserByEmail(email)
+  if (!user) return false
+  return (user.tokens_used ?? 0) < TOKEN_LIMIT
+}
+
+export function incrementTokensUsed(email: string, outputTokens: number) {
+  getDb().prepare('UPDATE users SET tokens_used = tokens_used + ? WHERE email = ?').run(outputTokens, email)
 }
 
 export function updateUserPlan(

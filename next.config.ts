@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
   ],
   output: 'standalone',
   devIndicators: false,
+  async redirects() {
+    return [
+      {
+        source: '/pricing',
+        destination: '/#pricing',
+        permanent: true,
+      },
+    ]
+  },
 };
 
 export default nextConfig;
