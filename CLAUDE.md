@@ -13,8 +13,8 @@ Visual web tool for designing ontologies, taxonomies, and knowledge graphs that 
 ### Git repos (two remotes)
 | Remote | Repo | Visibility | Purpose |
 |--------|------|------------|---------|
-| `origin` | `cjsergienko/ontology-open` | **Public** | What is deployed — no Stripe, open access |
-| `private` | `cjsergienko/ontology` | Private | Commercial backup with full payment code |
+| `origin` | `cjsergienko/ontology` | Private | Primary — what gets deployed to ontology.live |
+| `public` | `cjsergienko/ontology-open` | **Public** | Open research edition — mirrors main |
 
 ---
 
