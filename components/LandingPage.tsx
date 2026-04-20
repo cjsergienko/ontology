@@ -269,6 +269,7 @@ export function LandingPage() {
       })
       // Not authenticated (NextAuth 307 or explicit 401)
       if (res.type === 'opaqueredirect' || res.status === 401 || !res.ok) {
+        sessionStorage.setItem('pendingCheckoutPlan', planKey)
         window.location.href = '/login'
         return
       }
@@ -797,6 +798,7 @@ export function LandingPage() {
                 ) : (
                   <a
                     href={plan.ctaHref}
+                    suppressHydrationWarning
                     style={{
                       display: 'block',
                       textAlign: 'center',

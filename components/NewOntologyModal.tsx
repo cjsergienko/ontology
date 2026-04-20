@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
   XIcon, FileIcon, FileTextIcon, ImageIcon, AlertCircleIcon,
-  PlusIcon, PencilIcon, UploadIcon, FilesIcon, ZapIcon,
+  PlusIcon, PencilIcon, UploadIcon, FilesIcon,
 } from 'lucide-react'
+import { TokenLimitModal } from './TokenLimitModal'
 
 interface Props {
   onClose: () => void
@@ -64,7 +65,7 @@ export function NewOntologyModal({ onClose }: Props) {
   }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [limitError, setLimitError] = useState<string | null>(null)
+  const [showTokenLimit, setShowTokenLimit] = useState(false)
 
   // Build mode
   const [form, setForm] = useState({ name: '', description: '', domain: '' })
@@ -79,7 +80,7 @@ export function NewOntologyModal({ onClose }: Props) {
   const [analyzeDragging, setAnalyzeDragging] = useState(false)
   const analyzeRef = useRef<HTMLInputElement>(null)
 
-  const clearError = () => { setError(null); setLimitError(null) }
+  const clearError = () => { setError(null) }
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
@@ -95,7 +96,7 @@ export function NewOntologyModal({ onClose }: Props) {
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({})) as { error?: string }
-        if (res.status === 403) { setLimitError(err.error ?? 'Plan limit reached'); setLoading(false); return }
+        if (res.status === 402) { setShowTokenLimit(true); setLoading(false); return }
         throw new Error(err.error ?? `Server error ${res.status}`)
       }
       const created = await res.json()
@@ -125,7 +126,7 @@ export function NewOntologyModal({ onClose }: Props) {
       const resp = await fetch('/api/ontologies/import', { method: 'POST', body: fd })
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({})) as { error?: string }
-        if (resp.status === 403) { setLimitError(err.error ?? 'Plan limit reached'); setLoading(false); return }
+        if (resp.status === 402) { setShowTokenLimit(true); setLoading(false); return }
         throw new Error(err.error ?? `Server error ${resp.status}`)
       }
       const ct = resp.headers.get('content-type') ?? ''
@@ -170,7 +171,7 @@ export function NewOntologyModal({ onClose }: Props) {
       const resp = await fetch('/api/ontologies/upload', { method: 'POST', body: fd })
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({})) as { error?: string }
-        if (resp.status === 403) { setLimitError(err.error ?? 'Plan limit reached'); setLoading(false); return }
+        if (resp.status === 402) { setShowTokenLimit(true); setLoading(false); return }
         throw new Error(err.error ?? `Server error ${resp.status}`)
       }
       const ct = resp.headers.get('content-type') ?? ''
@@ -209,6 +210,8 @@ export function NewOntologyModal({ onClose }: Props) {
   }
 
   return (
+    <>
+    {showTokenLimit && <TokenLimitModal onClose={() => setShowTokenLimit(false)} />}
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ background: 'rgba(15,23,42,0.6)' }}
@@ -466,19 +469,6 @@ export function NewOntologyModal({ onClose }: Props) {
               {error}
             </div>
           )}
-          {/* Plan limit error */}
-          {limitError && (
-            <div className="flex items-start gap-2 p-3 rounded text-xs"
-              style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24' }}>
-              <ZapIcon size={12} className="shrink-0 mt-0.5" />
-              <span>
-                {limitError}{' '}
-                <a href="/pricing" className="underline font-semibold" style={{ color: '#f59e0b' }}>
-                  View upgrade options →
-                </a>
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Footer */}
@@ -522,5 +512,6 @@ export function NewOntologyModal({ onClose }: Props) {
         </div>
       </div>
     </div>
+    </>
   )
 }

@@ -49,8 +49,13 @@ function initSchema(db: Database.Database) {
   `)
 
   // Migrations for existing DBs
-  const cols = db.pragma('table_info(ontologies)') as { name: string }[]
-  if (!cols.find(c => c.name === 'user_id')) {
+  const ontCols = db.pragma('table_info(ontologies)') as { name: string }[]
+  if (!ontCols.find(c => c.name === 'user_id')) {
     db.exec(`ALTER TABLE ontologies ADD COLUMN user_id TEXT REFERENCES users(id)`)
+  }
+
+  const userCols = db.pragma('table_info(users)') as { name: string }[]
+  if (!userCols.find(c => c.name === 'tokens_used')) {
+    db.exec(`ALTER TABLE users ADD COLUMN tokens_used INTEGER NOT NULL DEFAULT 0`)
   }
 }

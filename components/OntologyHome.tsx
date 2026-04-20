@@ -148,6 +148,19 @@ export function OntologyHome({ initialOntologies }: Props) {
     fetch('/api/users/me').then(r => r.ok ? r.json() : null).then(d => { if (d) setUserInfo(d) })
   }, [])
 
+  useEffect(() => {
+    const pendingPlan = sessionStorage.getItem('pendingCheckoutPlan')
+    if (!pendingPlan) return
+    sessionStorage.removeItem('pendingCheckoutPlan')
+    fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: pendingPlan }),
+    }).then(r => r.ok ? r.json() : null).then(d => {
+      if (d?.url) window.location.href = d.url
+    })
+  }, [])
+
   const modal = searchParams.get('modal')
   const modalOpen = modal === 'create' || modal === 'upload' || modal === 'import'
 
@@ -207,7 +220,7 @@ export function OntologyHome({ initialOntologies }: Props) {
               </span>
               {userInfo.plan === 'free' && (
                 <button
-                  onClick={() => router.push('/pricing')}
+                  onClick={() => router.push('/#pricing')}
                   className="flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-80"
                   style={{ color: '#f59e0b' }}
                 >
@@ -262,7 +275,7 @@ export function OntologyHome({ initialOntologies }: Props) {
               {userInfo.limits.ontologies} ontologies on <strong>{userInfo.plan}</strong> plan
             </div>
             <button
-              onClick={() => router.push('/pricing')}
+              onClick={() => router.push('/#pricing')}
               className="flex items-center gap-1 text-xs font-medium"
               style={{ color: '#f59e0b', whiteSpace: 'nowrap' as const }}
             >
