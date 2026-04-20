@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { listOntologies, saveOntology } from '@/lib/storage'
 import { getSessionUser } from '@/lib/authHelper'
-import { countUserOntologies } from '@/lib/users'
-import { getPlanLimits } from '@/lib/plans'
 import type { Ontology } from '@/lib/types'
 
 export async function GET() {
@@ -19,17 +17,6 @@ export async function POST(req: Request) {
 
   const { getUserByEmail } = await import('@/lib/users')
   const user = getUserByEmail(sessionUser.email)!
-  const limits = getPlanLimits(user.plan as Parameters<typeof getPlanLimits>[0])
-
-  if (limits.ontologies !== -1) {
-    const count = countUserOntologies(user.id)
-    if (count >= limits.ontologies) {
-      return NextResponse.json(
-        { error: `Plan limit reached: your ${user.plan} plan allows ${limits.ontologies} ontologies. Upgrade to create more.` },
-        { status: 403 },
-      )
-    }
-  }
 
   const body = await req.json()
   const ontology: Ontology = {
