@@ -73,20 +73,20 @@ git fetch origin && git checkout main && git reset --hard origin/main
 This repo has two remotes:
 | Remote | Repo | Purpose |
 |--------|------|---------|
-| `origin` | `cjsergienko/ontology-open` | **Public** — what is deployed on ontology.live (no payments) |
-| `private` | `cjsergienko/ontology` | Private — commercial backup with full Stripe/plan code |
+| `origin` | `cjsergienko/ontology` | Private — primary, used for deployment |
+| `public` | `cjsergienko/ontology-open` | Public — open research edition, mirror of main |
 
-Push to `origin` (public fork) for deployment. Push to `private` only when preserving commercial history.
+After merging to main, mirror to the public repo:
 
 ```bash
 # Check remotes
 git remote -v
 
-# Push to public (deploy)
-git push origin dev
+# Normal flow (private)
+git push origin feature/your-branch
 
-# Push to private (backup)
-git push private dev
+# Mirror main to public after merge
+git push public main
 ```
 
 ## Deploy
